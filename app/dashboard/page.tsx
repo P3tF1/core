@@ -1,159 +1,271 @@
 "use client"
 
-import { useState } from "react"
-import { motion } from "framer-motion"
-import { RefreshCw, Beaker, Cake, DollarSign, Heart, Zap, PuzzleIcon as PuzzlePiece } from "lucide-react"
+import { useState, useEffect } from "react"
+import { motion, AnimatePresence } from "framer-motion"
+import { useAppKitProvider, useAppKitAccount } from "@reown/appkit/react"
+import { ethers } from "ethers"
+import { showToast } from "@/utils/toast"
+import { Navbar } from "@/components/Navbar"
+import { Sidenav } from "@/components/Sidenav"
+import { PetCard } from "@/components/PetCard"
+import { FoodManagement } from "@/components/FoodManagement"
+import { MiniGames } from "@/components/MiniGames"
+import { PetMarket } from "@/components/PetMarket"
+import { GamePopup } from "@/components/GamePopup"
+import { BuyTokensPopup } from "@/components/BuyTokensPopup"
+import { FeedPopup } from "@/components/FeedPopup"
+import type { Pet, Game } from "@/types"
+import TokenABI from "@/contract_abis/p3tf1_coin_abi.json"
+import NftGeneratorABI from "@/contract_abis/nft_generator_abi.json"
+import NftMarketplaceABI from "@/contract_abis/nft_marketplace_abi.json"
+import NftMarketplaceAddress from "@/contract_address/nft_marketplace_address.json"
+import NftGeneratortAddress from "@/contract_address/nft_generator_address.json"
+import TokenAddress from "@/contract_address/p3tf1_coin_address.json"
+import { testImageLink } from "@/constants/gameData"
 
 export default function Dashboard() {
-  const [pet, setPet] = useState({
-    name: "Fluffy",
-    type: "Dragon",
-    level: 5,
-    health: 80,
-    energy: 60,
-    happiness: 75,
-  })
+  const [balance, setBalance] = useState(0)
+  const [selectedGame, setSelectedGame] = useState<Game | null>(null)
+  const [showBuyTokens, setShowBuyTokens] = useState(false)
+  const [tokensToBuy, setTokensToBuy] = useState(0)
+  const [pets, setPets] = useState<Pet[]>([])
+  const [currentPetIndex, setCurrentPetIndex] = useState(0)
+  const [showFeedPopup, setShowFeedPopup] = useState(false)
+  const [activeSection, setActiveSection] = useState("pets")
+  const [nftGenerator, setNftGenerator] = useState<ethers.Contract | null>(null)
+  const [nftMarketplace, setNftMarketplace] = useState<ethers.Contract | null>(null)
+  const [tokenContract, setTokenContract] = useState<ethers.Contract | null>(null)
+  const { walletProvider } = useAppKitProvider()
+  const { address, isConnected } = useAppKitAccount()
 
-  const [showMiniGames, setShowMiniGames] = useState(false)
+  useEffect(() => {
+    if (isConnected) {
+      getTokenBalance()
+      findPet()
+    }
+  }, [isConnected])
 
-  const feedPet = () => {
-    setPet((prev) => ({
-      ...prev,
-      health: Math.min(100, prev.health + 10),
-      energy: Math.min(100, prev.energy + 15),
-      happiness: Math.min(100, prev.happiness + 5),
-    }))
+  const getTokenContract = async () => {
+    if (!isConnected) {
+      showToast.error("Wallet not connected")
+      return null
+    }
+    if (tokenContract) {
+      return tokenContract
+    }
+    try {
+      const ethersProvider = new ethers.BrowserProvider(window.ethereum)
+      const signer = await ethersProvider.getSigner()
+      const contract = new ethers.Contract(TokenAddress.address, TokenABI, signer)
+      setTokenContract(contract)
+      return contract
+    } catch (error) {
+      showToast.error("Failed to fetch contract: " + error.message)
+      return null
+    }
+  }
+
+  const getNftGenContract = async () => {
+    if (!isConnected) {
+      showToast.error("Wallet not connected")
+      return null
+    }
+    if (nftGenerator) {
+      return nftGenerator
+    }
+    try {
+      const ethersProvider = new ethers.BrowserProvider(window.ethereum)
+      const signer = await ethersProvider.getSigner()
+      const contract = new ethers.Contract(NftGeneratortAddress.address, NftGeneratorABI, signer)
+      setNftGenerator(contract)
+      return contract
+    } catch (error) {
+      showToast.error("Failed to fetch contract: " + error.message)
+      return null
+    }
+  }
+
+  const getNftmarketContract = async () => {
+    if (!isConnected) {
+      showToast.error("Wallet not connected")
+      return null
+    }
+    if (nftMarketplace) {
+      return nftMarketplace
+    }
+    try {
+      const ethersProvider = new ethers.BrowserProvider(window.ethereum)
+      const signer = await ethersProvider.getSigner()
+      const contract = new ethers.Contract(NftMarketplaceAddress.address, NftMarketplaceABI, signer)
+      setNftMarketplace(contract)
+      return contract
+    } catch (error) {
+      showToast.error("Failed to fetch contract: " + error.message)
+      return null
+    }
+  }
+
+  const getTokenBalance = async () => {
+    const tokenContract = await getTokenContract()
+    if (!tokenContract) {
+      return
+    }
+    const balance = await tokenContract.balanceOf(address)
+    const formattedBalance = ethers.formatEther(balance)
+    setBalance(Number(formattedBalance))
+  }
+
+  const buyTokens = async () => {
+    const tokenContract = await getTokenContract()
+    await showToast.promise(
+      (async () => {
+        const amount = ethers.parseEther((tokensToBuy * 0.0001).toString())
+        const tx = await tokenContract.buyTokens({
+          value: amount,
+        })
+        const receipt = await tx.wait()
+        console.log(receipt)
+        return receipt
+      })(),
+      {
+        loading: "Buying tokens...",
+        success: "Tokens bought successfully",
+        error: "Failed to buy tokens",
+      },
+    )
+    setShowBuyTokens(false)
+    setTokensToBuy(0)
+    await getTokenBalance()
+  }
+
+  const feedPet = async (foodItem, pet) => {
+    const contract = await getNftGenContract()
+    if (contract == null) return
+    await showToast.promise(contract.feedPet(pet.id, foodItem.id), {
+      loading: "Feeding pet...",
+      success: "Pet fed successfully",
+      error: "Failed to feed pet",
+    })
+    findPet()
+  }
+
+  const findPet = async () => {
+    const contract = await getNftGenContract()
+    if (contract == null) return
+    const nftIds = await contract.getUserNFTs(address)
+    console.log("User's NFT IDs:", nftIds)
+
+    const finalPetsArray = []
+    for (const tokenId of nftIds) {
+      const nftDetails = await contract.getNFTDetails(tokenId)
+      finalPetsArray.push({
+        id: tokenId.toString(),
+        name: nftDetails.name,
+        level: nftDetails.level.toString(),
+        strength: nftDetails.strength.toString(),
+        intelligence: nftDetails.intelligence.toString(),
+        image: nftDetails.imageLink || testImageLink,
+        type: nftDetails.xP.toString(),
+      })
+    }
+    console.log(finalPetsArray)
+    setPets(finalPetsArray)
+    return finalPetsArray
+  }
+
+  const sellPet = async (petId: number, price: number) => {
+    const contract = await getNftmarketContract()
+    if (contract == null) return
+    await showToast.promise(contract.listPetForSale(petId, ethers.parseEther(price.toString())), {
+      loading: "Listing pet for sale...",
+      success: "Pet listed for sale successfully",
+      error: "Failed to list pet for sale",
+    })
+    findPet()
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-600 to-blue-500 p-8 text-white">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="max-w-4xl mx-auto bg-white/10 backdrop-blur-lg rounded-3xl shadow-2xl overflow-hidden"
-      >
-        <div className="p-8">
-          <h1 className="text-4xl font-bold mb-6 text-center">Pet Dashboard</h1>
-          <div className="flex flex-col md:flex-row gap-8">
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="flex-1 bg-white/20 rounded-2xl p-6 backdrop-blur-sm"
-            >
-              <img
-                src="/placeholder.svg?height=300&width=300"
-                alt={pet.name}
-                className="w-full h-64 object-cover rounded-xl mb-4"
-              />
-              <h2 className="text-2xl font-semibold mb-2">{pet.name}</h2>
-              <p className="text-lg mb-4">
-                {pet.type} - Level {pet.level}
-              </p>
-              <div className="space-y-2">
-                <div className="flex items-center">
-                  <Heart className="w-6 h-6 mr-2 text-red-400" />
-                  <div className="bg-gray-200 h-4 flex-1 rounded-full overflow-hidden">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${pet.health}%` }}
-                      transition={{ duration: 0.5 }}
-                      className="bg-red-400 h-full rounded-full"
-                    />
-                  </div>
-                  <span className="ml-2">{pet.health}%</span>
-                </div>
-                <div className="flex items-center">
-                  <Zap className="w-6 h-6 mr-2 text-yellow-400" />
-                  <div className="bg-gray-200 h-4 flex-1 rounded-full overflow-hidden">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${pet.energy}%` }}
-                      transition={{ duration: 0.5 }}
-                      className="bg-yellow-400 h-full rounded-full"
-                    />
-                  </div>
-                  <span className="ml-2">{pet.energy}%</span>
-                </div>
-                <div className="flex items-center">
-                  <Beaker className="w-6 h-6 mr-2 text-green-400" />
-                  <div className="bg-gray-200 h-4 flex-1 rounded-full overflow-hidden">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${pet.happiness}%` }}
-                      transition={{ duration: 0.5 }}
-                      className="bg-green-400 h-full rounded-full"
-                    />
-                  </div>
-                  <span className="ml-2">{pet.happiness}%</span>
-                </div>
-              </div>
-            </motion.div>
-            <div className="flex-1 space-y-6">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={feedPet}
-                className="w-full bg-gradient-to-r from-pink-500 to-purple-500 text-white py-3 px-6 rounded-xl font-semibold text-lg shadow-lg flex items-center justify-center"
+    <div className="flex min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 text-gray-800">
+      <Sidenav activeSection={activeSection} setActiveSection={setActiveSection} setShowBuyTokens={setShowBuyTokens} />
+
+      <div className="flex-1 flex flex-col">
+        <Navbar balance={balance} />
+
+        <main className="flex-1 p-8 overflow-auto">
+          <AnimatePresence mode="wait">
+            {activeSection === "pets" && (
+              <motion.div
+                key="pets"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
               >
-                <Cake className="w-6 h-6 mr-2" />
-                Feed Pet
-              </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setShowMiniGames(!showMiniGames)}
-                className="w-full bg-gradient-to-r from-green-500 to-teal-500 text-white py-3 px-6 rounded-xl font-semibold text-lg shadow-lg flex items-center justify-center"
+                <PetCard
+                  pets={pets}
+                  currentPetIndex={currentPetIndex}
+                  setCurrentPetIndex={setCurrentPetIndex}
+                  setShowFeedPopup={setShowFeedPopup}
+                  onSellPet={sellPet}
+                />
+              </motion.div>
+            )}
+
+            {activeSection === "food" && (
+              <motion.div
+                key="food"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
               >
-                <PuzzlePiece className="w-6 h-6 mr-2" />
-                {showMiniGames ? "Hide Mini-Games" : "Show Mini-Games"}
-              </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 text-white py-3 px-6 rounded-xl font-semibold text-lg shadow-lg flex items-center justify-center"
+                <FoodManagement balance={balance} setBalance={setBalance} />
+              </motion.div>
+            )}
+
+            {activeSection === "games" && (
+              <motion.div
+                key="games"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
               >
-                <DollarSign className="w-6 h-6 mr-2" />
-                Trade Pet
-              </motion.button>
-              {showMiniGames && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="space-y-4"
-                >
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="w-full bg-blue-500 text-white py-3 px-6 rounded-xl font-semibold text-lg shadow-lg flex items-center justify-center"
-                  >
-                    <Zap className="w-6 h-6 mr-2" />
-                    Speed Math Challenge
-                  </motion.button>
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="w-full bg-purple-500 text-white py-3 px-6 rounded-xl font-semibold text-lg shadow-lg flex items-center justify-center"
-                  >
-                    <RefreshCw className="w-6 h-6 mr-2" />
-                    Card Flip Challenge
-                  </motion.button>
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="w-full bg-red-500 text-white py-3 px-6 rounded-xl font-semibold text-lg shadow-lg flex items-center justify-center"
-                  >
-                    <Beaker className="w-6 h-6 mr-2" />
-                    Rock Breaker
-                  </motion.button>
-                </motion.div>
-              )}
-            </div>
-          </div>
-        </div>
-      </motion.div>
+                <MiniGames setSelectedGame={setSelectedGame} />
+              </motion.div>
+            )}
+
+            {activeSection === "market" && (
+              <motion.div
+                key="market"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                <PetMarket balance={balance} setBalance={setBalance} pets={pets} setPets={setPets} onBuyPet={findPet} />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </main>
+      </div>
+
+      <AnimatePresence>
+        {selectedGame && <GamePopup game={selectedGame} onClose={() => setSelectedGame(null)} />}
+
+        {showBuyTokens && (
+          <BuyTokensPopup
+            tokensToBuy={tokensToBuy}
+            setTokensToBuy={setTokensToBuy}
+            onBuy={buyTokens}
+            onClose={() => setShowBuyTokens(false)}
+          />
+        )}
+
+        {showFeedPopup && (
+          <FeedPopup pet={pets[currentPetIndex]} onFeed={feedPet} onClose={() => setShowFeedPopup(false)} />
+        )}
+      </AnimatePresence>
     </div>
   )
 }
