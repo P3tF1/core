@@ -23,7 +23,7 @@ const StartTimer: React.FC<StartTimerProps> = ({ onComplete }) => {
                 <h1 className="text-4xl font-bold mb-4">Rock Breaking Game</h1>
                 <p className="text-xl mb-2">Click on rocks to break them and earn points!</p>
                 <p className="text-xl mb-2">Rocks will decay over time, so be quick!</p>
-                <p className="text-xl">You have 60 seconds. Good luck!</p>
+                <p className="text-xl">You have 15 seconds. Good luck!</p>
             </div>
             <div className="text-white text-9xl font-bold">{countdown > 0 ? countdown : "Go!"}</div>
         </div>
