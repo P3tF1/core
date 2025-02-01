@@ -10,7 +10,7 @@ import {
   Brain,
   Coins,
   ShoppingBag,
-  Twitter,
+  X,
   DiscIcon as Discord,
   Github,
 } from "lucide-react";
@@ -31,7 +31,6 @@ export default function LandingPage() {
         router.push("/dashboard");
       }, 3000);
 
-      // Cleanup the timeout on unmount or if isConnected changes
       return () => clearTimeout(timeout);
     }
   }, [isConnected, router]);
@@ -409,7 +408,7 @@ function Footer() {
               href="#"
               className="text-gray-400 hover:text-indigo-600 transition-colors"
             >
-              <Twitter />
+              <X />
             </a>
             <a
               href="#"
