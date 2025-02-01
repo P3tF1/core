@@ -5,7 +5,7 @@ import {Trophy, Timer, Hammer} from "lucide-react";
 import {useState, useRef, useEffect} from "react"
 import {useGameLoop} from "./hooks/useGameLoop"
 import type {GameState, Spaceship, Meteorite, Laser, GameConfig} from "./types"
-import {Navbar} from "@/app/games/space-game/Navbar";
+import Navbar from "@/components/navbar";
 
 const CANVAS_WIDTH = 800
 const CANVAS_HEIGHT = 600
