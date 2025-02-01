@@ -186,7 +186,7 @@ export default function Dashboard() {
     setShowBuyTokens(false);
     await toast.promise(
       (async () => {
-        const amount = ethers.parseEther((tokensToBuy * 0.0001).toString());
+        const amount = tokensToBuy * 1e14;
         const tx = await tokenContract.buyTokens({
           value: amount,
         });
@@ -779,6 +779,13 @@ function GamePopup({ game, onClose }) {
 }
 
 function BuyTokensPopup({ tokensToBuy, setTokensToBuy, onBuy, onClose }) {
+  const [showBuyTokens, setShowBuyTokens] = useState(0);
+
+  useEffect(() => {
+    const buyTokensInEth = ethers.formatEther(BigInt(tokensToBuy * 1e14));
+    setShowBuyTokens(buyTokensInEth);
+  }, [tokensToBuy]);
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -813,12 +820,14 @@ function BuyTokensPopup({ tokensToBuy, setTokensToBuy, onBuy, onClose }) {
           <Button
             variant="outline"
             size="icon"
-            onClick={() => setTokensToBuy(tokensToBuy + 10)}
+            onClick={() => {
+              setTokensToBuy(tokensToBuy + 10);              
+            }}
           >
             <Plus className="w-4 h-4" />
           </Button>
         </div>
-        <p className="text-center mb-4">Total: {tokensToBuy * 0.0001} Eth</p>
+        <p className="text-center mb-4">Total: {showBuyTokens} ETH</p>
         <Button
           className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
           onClick={onBuy}
