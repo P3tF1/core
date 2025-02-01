@@ -33,15 +33,15 @@ export function BuyTokensPopup({ tokensToBuy, setTokensToBuy, onBuy, onClose }: 
         </Button>
         <h3 className="text-2xl font-bold mb-4 text-indigo-600">Buy Tokens</h3>
         <div className="flex items-center justify-between mb-4">
-          <Button variant="outline" size="icon" onClick={() => setTokensToBuy(Math.max(0, tokensToBuy - 10))}>
+          <Button variant="outline" size="icon" onClick={() => setTokensToBuy(Math.max(0, tokensToBuy - 1000))}>
             <Minus className="w-4 h-4" />
           </Button>
           <span className="text-2xl font-bold">{tokensToBuy}</span>
-          <Button variant="outline" size="icon" onClick={() => setTokensToBuy(tokensToBuy + 10)}>
+          <Button variant="outline" size="icon" onClick={() => setTokensToBuy(tokensToBuy + 1000)}>
             <Plus className="w-4 h-4" />
           </Button>
         </div>
-        <p className="text-center mb-4">Total: {tokensToBuy * 0.0001} Eth</p>
+        <p className="text-center mb-4">Total: {tokensToBuy * 0.000001} Eth</p>
         <Button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white" onClick={onBuy}>
           Buy Tokens
         </Button>

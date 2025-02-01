@@ -1,27 +1,25 @@
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import type { Pet } from "@/types"
-import { BuyPetPopup } from "./BuyPetPopup"
-import { PetForSaleCard } from "./PetForSaleCard"
-import { samplePetsForTrade } from "@/constants/gameData"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import type { Pet } from "@/types";
+import { BuyPetPopup } from "./BuyPetPopup";
+import { PetForSaleCard } from "./PetForSaleCard";
+import { samplePetsForTrade } from "@/constants/gameData";
 
-interface PetMarketProps {
-  balance: number
-  setBalance: (balance: number) => void
-  pets: Pet[]
-  setPets: (pets: Pet[]) => void
-  onBuyPet: () => Promise<void>
-}
-
-export function PetMarket({ balance, setBalance, pets, setPets, onBuyPet }: PetMarketProps) {
-  const [showBuyPetPopup, setShowBuyPetPopup] = useState(false)
-  const [petsForSale, setPetsForSale] = useState(samplePetsForTrade)
+export function PetMarket({
+  balance,
+  setBalance,
+  pets,
+  setPets,
+  onBuyPet,
+  onBuyDefaultPet,
+}) {
+  const [showBuyPetPopup, setShowBuyPetPopup] = useState(false);
+  const [petsForSale, setPetsForSale] = useState(samplePetsForTrade);
 
   const buyNewPet = async () => {
     if (balance >= 100) {
-      setBalance(balance - 100)
-      await onBuyPet()
-      setShowBuyPetPopup(false)
+      setShowBuyPetPopup(false);
+      await onBuyDefaultPet();
     }
   }
 

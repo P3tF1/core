@@ -13,7 +13,7 @@ export function AttributeBar({ label, value }: AttributeBarProps) {
         <motion.div
           className="h-2.5 rounded-full bg-indigo-600"
           initial={{ width: 0 }}
-          animate={{ width: `${(value / 20) * 100}%` }}
+          animate={{ width: `${(value / 100) * 100}%` }}
           transition={{ duration: 0.5, ease: "easeInOut" }}
         />
       </div>
