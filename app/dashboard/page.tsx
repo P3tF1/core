@@ -183,6 +183,7 @@ export default function Dashboard() {
 
   const buyTokens = async () => {
     const tokenContract = await getTokenContract();
+    setShowBuyTokens(false);
     await toast.promise(
       (async () => {
         const amount = ethers.parseEther((tokensToBuy * 0.0001).toString());
@@ -199,7 +200,6 @@ export default function Dashboard() {
         error: "Failed to buy tokens",
       }
     );
-    setShowBuyTokens(false);
     setTokensToBuy(0);
     await getTokenBalance();
   };

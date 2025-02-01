@@ -5,12 +5,7 @@ import { wagmiAdapter, projectId } from "@/config";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createAppKit } from "@reown/appkit/react";
 import {
-  mainnet,
   arbitrum,
-  avalanche,
-  base,
-  optimism,
-  polygon,
   baseSepolia,
 } from "@reown/appkit/networks";
 import React, { type ReactNode } from "react";
@@ -36,15 +31,10 @@ const modal = createAppKit({
   adapters: [wagmiAdapter],
   projectId,
   networks: [
-    mainnet,
     arbitrum,
-    avalanche,
-    base,
-    optimism,
-    polygon,
     baseSepolia,
   ],
-  defaultNetwork: mainnet,
+  defaultNetwork: baseSepolia,
   metadata: metadata,
   features: {
     analytics: true,
