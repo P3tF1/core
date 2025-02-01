@@ -31,7 +31,6 @@ export default function LandingPage() {
         router.push("/dashboard");
       }, 3000);
 
-      // Cleanup the timeout on unmount or if isConnected changes
       return () => clearTimeout(timeout);
     }
   }, [isConnected, router]);
