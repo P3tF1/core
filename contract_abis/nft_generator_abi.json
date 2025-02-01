@@ -60,7 +60,7 @@
 		],
 		"name": "buyPetFood",
 		"outputs": [],
-		"stateMutability": "payable",
+		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
@@ -482,6 +482,24 @@
 				"type": "uint256"
 			},
 			{
+				"internalType": "string",
+				"name": "newImageLink",
+				"type": "string"
+			}
+		],
+		"name": "updateImageURI",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			},
+			{
 				"internalType": "uint256",
 				"name": "level",
 				"type": "uint256"
@@ -498,13 +516,6 @@
 			}
 		],
 		"name": "updateNFTStats",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "withdraw",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"

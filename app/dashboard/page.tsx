@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+// https://fastly.picsum.photos/id/728/200/300.jpg?hmac=J-q7xv6gzVRQmKunEBaFotw4F0dJ1Q6OnjN85VoBk8o image test link
 "use client";
 
 import { useState, useEffect } from "react";
@@ -53,11 +54,11 @@ const games = [
   },
 ];
 
-const foodItems = [
-  { name: "Basic Kibble", price: 5, strength: 1, intelligence: 1 },
-  { name: "Premium Chow", price: 10, strength: 2, intelligence: 2 },
-  { name: "Gourmet Feast", price: 20, strength: 3, intelligence: 3 },
-];
+// const foodItems = [
+//   { name: "Basic Kibble", price: 5, strength: 1, intelligence: 1 },
+//   { name: "Premium Chow", price: 10, strength: 2, intelligence: 2 },
+//   { name: "Gourmet Feast", price: 20, strength: 3, intelligence: 3 },
+// ];
 
 const samplePetsForTrade = [
   {
@@ -91,7 +92,7 @@ const samplePetsForTrade = [
     price: 1000,
   },
 ];
-
+const testImageLink = "https://fastly.picsum.photos/id/728/200/300.jpg?hmac=J-q7xv6gzVRQmKunEBaFotw4F0dJ1Q6OnjN85VoBk8o"
 export default function Dashboard() {
   const [balance, setBalance] = useState(0);
   const [selectedGame, setSelectedGame] = useState(null);
@@ -132,6 +133,11 @@ export default function Dashboard() {
     { name: "Premium Chow", quantity: 3, strength: 2, intelligence: 2 },
     { name: "Gourmet Feast", quantity: 1, strength: 3, intelligence: 3 },
   ]);
+    const [fooditems, setfoodItems] = useState([
+  { id:1, name: "Basic Kibble", price: 5, strength: 1, intelligence: 1 },
+  { id:2, name: "Premium Chow", price: 10, strength: 2, intelligence: 2 },
+  { id:3, name: "Gourmet Feast", price: 20, strength: 3, intelligence: 3 },
+  ]);
   const [showFeedPopup, setShowFeedPopup] = useState(false);
   const [activeSection, setActiveSection] = useState("pets");
   const [petsForSale, setPetsForSale] = useState(samplePetsForTrade);
@@ -144,6 +150,7 @@ export default function Dashboard() {
   useEffect(() => {
     if (isConnected) {
       getTokenBalance();
+      findPet();
     }
   }, [isConnected]);
 
@@ -171,6 +178,55 @@ export default function Dashboard() {
     }
   };
 
+
+  const getNftGenContract = async () => {
+    if (!isConnected) {
+      toast.error("Wallet not connected");
+      return null;
+    }
+    if (_nftGenerator) {
+      return _nftGenerator;
+    }
+    try {
+      const ethersProvider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await ethersProvider.getSigner();
+      const contract = new ethers.Contract(
+        NftGeneratortAddress.address,
+        NftGeneratorABI,
+        signer
+      );
+      setNftGenerator(contract);
+      return contract;
+    } catch (error) {
+      toast.error("Failed to fetch contract: " + error.message);
+      return null;
+    }
+  };
+
+  const getNftmarketContract = async () => {
+    if (!isConnected) {
+      toast.error("Wallet not connected");
+      return null;
+    }
+    if (_nftMarketplace) {
+      return _nftMarketplace;
+    }
+    try {
+      const ethersProvider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await ethersProvider.getSigner();
+      const contract = new ethers.Contract(
+        NftMarketplaceAddress.address,
+        NftGeneratorABI,
+        signer
+      );
+      setNftMarketplace(contract);
+      return contract;
+    } catch (error) {
+      toast.error("Failed to fetch contract: " + error.message);
+      return null;
+    }
+  };
+  
   const getTokenBalance = async () => {
     const tokenContract = await getTokenContract();
     if (!tokenContract) {
@@ -204,31 +260,38 @@ export default function Dashboard() {
     await getTokenBalance();
   };
 
-  const feedPet = (foodItem) => {
-    const updatedFoodBag = foodBag
-      .map((item) =>
-        item.name === foodItem.name
-          ? { ...item, quantity: item.quantity - 1 }
-          : item
-      )
-      .filter((item) => item.quantity > 0);
+  const feedPet = async (foodItem, pet) => {
 
-    const updatedPets = pets.map((pet, index) =>
-      index === currentPetIndex
-        ? {
-            ...pet,
-            strength: pet.strength + foodItem.strength,
-            intelligence: pet.intelligence + foodItem.intelligence,
-          }
-        : pet
-    );
+    const contract = await getNftGenContract();
+    if (contract == null) return;
+    const tx = await contract.feedPet(pet.id, foodItem.id)
+    const receipt = await tx.wait();
+    console.log(receipt); 
+    findPet();
+    // const updatedFoodBag = foodBag
+    //   .map((item) =>
+    //     item.name === foodItem.name
+    //       ? { ...item, quantity: item.quantity - 1 }
+    //       : item
+    //   )
+    //   .filter((item) => item.quantity > 0);
 
-    setFoodBag(updatedFoodBag);
-    setPets(updatedPets);
-    setShowFeedPopup(false);
+    // const updatedPets = pets.map((pet, index) =>
+    //   index === currentPetIndex
+    //     ? {
+    //         ...pet,
+    //         strength: pet.strength + foodItem.strength,
+    //         intelligence: pet.intelligence + foodItem.intelligence,
+    //       }
+    //     : pet
+    // );
+
+    // setFoodBag(updatedFoodBag);
+    // setPets(updatedPets);
+    // setShowFeedPopup(false);
   };
 
-  const buyFood = (item) => {
+  const buyFood = (item, quantity) => {
     if (balance >= item.price) {
       setBalance(balance - item.price);
       const existingItem = foodBag.find((food) => food.name === item.name);
@@ -262,7 +325,29 @@ export default function Dashboard() {
       setPetsForSale(petsForSale.filter((pet) => pet.id !== petId));
     }
   };
+  const findPet = async () => {
+    const contract = await getNftGenContract();
+    if (contract == null) return;
+        const nftIds = await contract.getUserNFTs(address);
+        console.log("User's NFT IDs:", nftIds);
 
+        const finalPetsArray = [];
+        for (const tokenId of nftIds) {
+            const nftDetails = await contract.getNFTDetails(tokenId);
+            finalPetsArray.push({
+                id: tokenId.toString(),
+                name: nftDetails.name,
+                level: nftDetails.level.toString(),
+                strength: nftDetails.strength.toString(),
+                intelligence: nftDetails.intelligence.toString(),
+                icon: nftDetails.imageLink,
+                type: nftDetails.xP.toString(),
+            });
+        }
+        console.log(finalPetsArray)
+        setPets(finalPetsArray)
+        return finalPetsArray
+  }
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 text-gray-800">
       <Sidenav
@@ -303,6 +388,8 @@ export default function Dashboard() {
                 transition={{ duration: 0.3 }}
               >
                 <FoodManagement
+                  fooditems={fooditems}
+                  setfoodItems={setfoodItems}
                   balance={balance}
                   setBalance={setBalance}
                   foodBag={foodBag}
@@ -567,7 +654,7 @@ function AttributeBar({ label, value }) {
   );
 }
 
-function FoodManagement({ balance, setBalance, foodBag, setFoodBag }) {
+function FoodManagement({ fooditems, setfoodItems, balance, setBalance, foodBag, setFoodBag }) {
   return (
     <div className="bg-white rounded-lg shadow-lg p-6">
       <h2 className="text-2xl font-bold mb-4 text-indigo-600">
@@ -576,6 +663,8 @@ function FoodManagement({ balance, setBalance, foodBag, setFoodBag }) {
       <div className="space-y-6">
         <FoodBag foodBag={foodBag} />
         <FoodShop
+          fooditems={fooditems} 
+          setfoodItems={setfoodItems}
           balance={balance}
           setBalance={setBalance}
           foodBag={foodBag}
@@ -629,34 +718,186 @@ function FoodBag({ foodBag }) {
   );
 }
 
-function FoodShop({ balance, setBalance, foodBag, setFoodBag }) {
-  const buyFood = (item) => {
-    if (balance >= item.price) {
-      setBalance(balance - item.price);
-      const existingItem = foodBag.find((food) => food.name === item.name);
-      if (existingItem) {
-        setFoodBag(
-          foodBag.map((food) =>
-            food.name === item.name
-              ? { ...food, quantity: (food.quantity || 0) + 1 }
-              : food
-          )
-        );
-      } else {
-        setFoodBag([...foodBag, { ...item, quantity: 1 }]);
-      }
+function FoodShop({ fooditems, setfoodItems, balance, setBalance, foodBag, setFoodBag }) {
+   const { address, isConnected } = useAppKitAccount();
+  const [_nftGenerator, setNftGenerator] = useState(null);
+  const getNftGenContract = async () => {
+    if (!isConnected) {
+      toast.error("Wallet not connected");
+      return null;
     }
+    if (_nftGenerator) {
+      return _nftGenerator;
+    }
+    try {
+      const ethersProvider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await ethersProvider.getSigner();
+      const contract = new ethers.Contract(
+        NftGeneratortAddress.address,
+        NftGeneratorABI,
+        signer
+      );
+      setNftGenerator(contract);
+      return contract;
+    } catch (error) {
+      toast.error("Failed to fetch contract: " + error.message);
+      return null;
+    }
+  };
+    async function fetchAllPetFoods() {
+    try {
+        const contract = await getNftGenContract();
+        if (!contract) {
+          return;
+        }
+        const petFoodCounter = await contract.petFoodCounter();
+        console.log(`Total PetFood items: ${petFoodCounter}`);
+
+        // Fetch each PetFood item
+        const petFoods = [];
+        for (let i = 1; i <= petFoodCounter; i++) {
+            const petFood = await contract.petFoods(i);
+            petFoods.push({
+                id: petFood.id.toString(),
+                name: petFood.name,
+                strength: petFood.strengthBoost.toString(),
+                intelligence: petFood.intelligenceBoost.toString(),
+                price: petFood.price.toString(),
+            });
+        }
+
+        console.log("All PetFood items:", petFoods);
+        setfoodItems(petFoods)
+        return petFoods;
+    } catch (error) {
+        console.error("Error fetching PetFood items:", error);
+    }
+}
+    async function fetchUserPetFoods() {
+    try {
+        const contract = await getNftGenContract();
+        if (!contract) {
+          return;
+        }
+                // Call the getUserPetFoodDetails function
+        const [petFoods, amounts] = await contract.getUserPetFoodDetails(address);
+
+        // Format the results
+        const userPetFoodDetails = petFoods.map((petFood, index) => ({
+            id: petFood.id.toString(),
+            name: petFood.name,
+            strength: petFood.strengthBoost.toString(),
+            intelligence: petFood.intelligenceBoost.toString(),
+            price: petFood.price.toString(),
+            quantity: amounts[index].toString(),
+        }));
+        // for (let i = 1; i <= petFoodCounter; i++) {
+        //     const petFood = await contract.petFoods(i);
+        //     petFoods.push({
+        //         id: petFood.id.toString(),
+        //         name: petFood.name,
+        //         strength: petFood.strengthBoost.toString(),
+        //         intelligence: petFood.intelligenceBoost.toString(),
+        //         price: petFood.price.toString(),
+        //     });
+        // }
+
+        console.log("Users PetFood items:", userPetFoodDetails);
+        setFoodBag(userPetFoodDetails)
+        return userPetFoodDetails;
+    } catch (error) {
+        console.error("Error fetching PetFood items:", error);
+    }
+}
+
+  useEffect(() => {
+    if (isConnected) {
+      fetchAllPetFoods();
+      getTokenBalance();
+      fetchUserPetFoods();
+    }
+  }, []);
+  
+    const getTokenBalance = async () => {
+    const tokenContract = await getTokenContract();
+    if (!tokenContract) {
+      return;
+    }
+    const balance = await tokenContract.balanceOf(address);
+    const formattedBalance = ethers.formatEther(balance);
+    setBalance(formattedBalance);
+  };
+
+  const [_tokenContract, setTokenContract] = useState(null);
+
+  const getTokenContract = async () => {
+    if (!isConnected) {
+      toast.error("Wallet not connected");
+      return null;
+    }
+    if (_tokenContract) {
+      return _tokenContract;
+    }
+    try {
+      const ethersProvider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await ethersProvider.getSigner();
+      const contract = new ethers.Contract(
+        TokenAddress.address,
+        TokenABI,
+        signer
+      );
+      setTokenContract(contract);
+      return contract;
+    } catch (error) {
+      toast.error("Failed to fetch contract: " + error.message);
+      return null;
+    }
+  };
+
+
+  const buyFood = async (item, quantity) => {
+    if (balance >= item.price) {
+    
+    await getTokenBalance();
+    const nftGenContract = await getNftGenContract();
+    if (nftGenContract == null) return;
+    const tx = await nftGenContract.buyPetFood(item.id, quantity);
+    await tx.wait();
+    await fetchUserPetFoods();
+    const tokenContract = await getTokenContract();
+    if (tokenContract == null) return;
+    const amount = BigInt(item.price) * BigInt(quantity);
+    const tx1 = await tokenContract.transferTokens(TokenAddress, amount);
+    console.log("Transaction sent:", tx1.hash);
+
+    // Wait for the transaction to be mined
+    await tx1.wait();
+    setBalance(balance - item.price);
+    // const existingItem = foodBag.find((food) => food.name === item.name);
+    // if (existingItem) {
+  
+    //   // setFoodBag(
+    //   //   foodBag.map((food) =>
+    //   //     food.name === item.name
+    //   //       ? { ...food, quantity: (food.quantity || 0) + 1 }
+    //   //       : food
+    //   //   )
+    //   // );
+    // } else {
+    //   setFoodBag([...foodBag, { ...item, quantity: 1 }]);
+    // }
+  }
   };
   return (
     <div className="bg-indigo-50 rounded-lg p-4">
       <h3 className="text-xl font-semibold mb-3 text-indigo-600">Food Shop</h3>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {foodItems.map((item, index) => (
+        {fooditems.map((item, index) => (
           <FoodItem
             key={index}
             item={item}
             balance={balance}
-            onBuy={() => buyFood(item)}
+            onBuy={async (quantity) => await buyFood(item, quantity)}
           />
         ))}
       </div>
@@ -666,7 +907,28 @@ function FoodShop({ balance, setBalance, foodBag, setFoodBag }) {
 
 function FoodItem({ item, balance, onBuy }) {
   const [hover, setHover] = useState(false);
+  const [quantity, setQuantity] = useState(1); // Default quantity is 1
 
+  // Handle incrementing the quantity
+  const incrementQuantity = () => {
+    setQuantity((prev) => prev + 1);
+  };
+
+  // Handle decrementing the quantity
+  const decrementQuantity = () => {
+    if (quantity > 1) {
+      setQuantity((prev) => prev - 1);
+    }
+  };
+
+  // Handle the buy action
+  const handleBuy = async () => {
+    if (balance >= item.price * quantity) {
+      onBuy(quantity) // Pass the selected quantity to the buy function
+    } else {
+      alert("Not enough tokens to buy this quantity.");
+    }
+  };
   return (
     <motion.div
       className="bg-white p-6 rounded-lg shadow-md border border-indigo-100"
@@ -699,13 +961,34 @@ function FoodItem({ item, balance, onBuy }) {
           </p>
         </motion.div>
       </div>
-      <Button
-        className="w-full bg-indigo-500 hover:bg-indigo-600 text-white transition-colors duration-200"
-        onClick={onBuy}
-        disabled={balance < item.price}
+      <div className="flex items-center gap-4">
+      {/* Quantity Selector */}
+      <div className="flex items-center gap-2">
+        <button
+          className="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded"
+          onClick={decrementQuantity}
+          disabled={quantity === 1}
+        >
+          -
+        </button>
+        <span className="text-lg">{quantity}</span>
+        <button
+          className="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded"
+          onClick={incrementQuantity}
+        >
+          +
+        </button>
+      </div>
+
+      {/* Buy Button */}
+      <button
+        className="w-full bg-indigo-500 hover:bg-indigo-600 text-white transition-colors duration-200 px-4 py-2 rounded"
+        onClick={handleBuy}
+        disabled={balance < item.price * quantity}
       >
-        {balance < item.price ? "Not enough tokens" : "Buy"}
-      </Button>
+        {balance < item.price * quantity ? "Not enough tokens" : `Buy (${quantity})`}
+      </button>
+    </div>
     </motion.div>
   );
 }
@@ -861,7 +1144,7 @@ function FeedPopup({ pet, foodBag, onFeed, onClose }) {
               <Button
                 key={index}
                 className="w-full bg-green-500 hover:bg-green-600 text-white"
-                onClick={() => onFeed(food)}
+                onClick={() => onFeed(food, pet)}
               >
                 {food.name} (x{food.quantity})
               </Button>
