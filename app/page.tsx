@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useAppKitAccount, useAppKit } from "@reown/appkit/react";
+import { useAppKitAccount } from "@reown/appkit/react";
 import { useRouter } from "next/navigation";
 
 export default function LandingPage() {
@@ -42,7 +42,7 @@ export default function LandingPage() {
   if (!mounted) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-100 to-purple-100 text-gray-800 overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 text-gray-800 overflow-hidden">
       <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]"></div>
       <Header />
       <main>
@@ -60,10 +60,10 @@ export default function LandingPage() {
 function Header() {
   return (
     <motion.header
-      initial={{ opacity: 0, y: -50 }} // Initial animation state
-      animate={{ opacity: 1, y: 0 }} // Animate to this state
-      transition={{ duration: 0.5 }} // Animation duration
-      className="fixed w-full z-10 bg-white bg-opacity-70 backdrop-blur-md shadow-md" // Tailwind classes for styling
+      initial={{ opacity: 0, y: -50 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="fixed w-full z-10 bg-gradient-to-r from-purple-600 to-indigo-600 bg-opacity-70 backdrop-blur-md shadow-md"
     >
       <div className="container mx-auto px-6 py-4 flex justify-between items-center">
         <Link
@@ -71,9 +71,8 @@ function Header() {
           className="flex items-center space-x-2"
           aria-label="Home"
         >
-          <PawPrint className="w-8 h-8 text-indigo-600" /> {/* Icon */}
-          <span className="text-2xl font-bold text-indigo-600">PetFi</span>{" "}
-          {/* Brand Name */}
+          <PawPrint className="w-8 h-8 text-yellow-400" />
+          <span className="text-2xl font-bold text-yellow-400">PetFi</span>
         </Link>
 
         <nav>
@@ -131,7 +130,7 @@ function Hero({ scrollYProgress }) {
               </div>
             </Button>
           ) : (
-            <appkit-button sz='md' label="Connect Wallet to Start" />
+            <appkit-button sz="md" label="Connect Wallet to Start" />
           )}
         </motion.div>
       </div>
@@ -237,7 +236,7 @@ function HowItWorks({ scrollYProgress }) {
               className="text-center"
             >
               <div className="mb-4 relative">
-                <div className="w-24 h-24 mx-auto rounded-full bg-indigo-600 flex items-center justify-center">
+                <div className="w-24 h-24 mx-auto rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 flex items-center justify-center">
                   {step.icon}
                 </div>
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-full w-8 h-8 flex items-center justify-center text-xl font-bold border-2 border-indigo-600 text-indigo-600">
@@ -313,62 +312,53 @@ function PetShowcase({ scrollYProgress }) {
 }
 
 function CallToAction({ scrollYProgress }) {
-  const scale = useTransform(scrollYProgress, [0.8, 1], [0.9, 1]);
-  const opacity = useTransform(scrollYProgress, [0.8, 1], [0.5, 1]);
+  const scale = useTransform(scrollYProgress, [1, 1], [1, 1]);
+  const opacity = useTransform(scrollYProgress, [0.8, 1], [0.8, 1]);
   const { isConnected } = useAppKitAccount();
   return (
     <motion.section
-      className="py-20 px-4 relative bg-indigo-100"
+      className="py-20 px-4 relative bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
       style={{ scale, opacity }}
     >
-      <div className="container mx-auto text-center">
-        <motion.h2
+      <div className="container mx-auto text-center relative z-10">
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
           viewport={{ once: true }}
-          className="text-4xl font-bold mb-6 text-indigo-600"
+          className="bg-white bg-opacity-10 backdrop-blur-lg rounded-xl p-8 shadow-xl"
         >
-          Ready to Start Your PetFi Adventure?
-        </motion.h2>
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          viewport={{ once: true }}
-          className="text-xl mb-8 max-w-2xl mx-auto text-gray-600"
-        >
-          Connect your wallet now and join the exciting world of blockchain pet
-          care and play-to-earn gaming!
-        </motion.p>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-          viewport={{ once: true }}
-          className="flex justify-center"
-        >
+          <h2 className="text-4xl font-bold mb-6 text-white">
+            Ready to Start Your PetFi Adventure?
+          </h2>
+          <p className="text-xl mb-8 max-w-2xl mx-auto text-gray-200">
+            Connect your wallet now and join the exciting world of blockchain
+            pet care and play-to-earn gaming!
+          </p>
+          <div className="flex justify-center">
             {isConnected ? (
-                <Button
-                  size="lg"
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white"
-                >
-              <div className="flex items-center">
-                Redirecting to Dashboard...
-              </div>
-          </Button>
+              <Button
+                size="lg"
+                className="bg-yellow-400 hover:bg-yellow-500 text-indigo-800 font-semibold px-8 py-3 rounded-full transition-all duration-300 transform hover:scale-105"
+              >
+                <div className="flex items-center">
+                  Redirecting to Dashboard...
+                </div>
+              </Button>
             ) : (
-              <appkit-button sz='md' label="Connect Wallet to Start" />
+              <appkit-button sz="lg" label="Connect Wallet to Start" />
             )}
+          </div>
         </motion.div>
       </div>
+      <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center opacity-10"></div>
     </motion.section>
   );
 }
 
 function Footer() {
   return (
-    <footer className="bg-white text-gray-600 py-8">
+    <footer className="bg-gray-900 text-white py-12">
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row justify-between items-center">
           <div className="flex items-center mb-4 md:mb-0">

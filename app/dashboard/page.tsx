@@ -196,29 +196,29 @@ export default function Dashboard() {
 		const formattedBalance = ethers.formatEther(balance);
 		setBalance(formattedBalance);
 	};
-
-	const buyTokens = async () => {
-		const tokenContract = await getTokenContract();
-		await toast.promise(
-			(async () => {
-				const amount = ethers.parseEther((tokensToBuy * 0.0001).toString());
-				const tx = await tokenContract.buyTokens({
-					value: amount,
-				});
-				const receipt = await tx.wait();
-				console.log(receipt);
-				return receipt;
-			})(),
-			{
-				loading: "Buying tokens...",
-				success: "Tokens bought successfully",
-				error: "Failed to buy tokens",
-			}
-		);
-		setShowBuyTokens(false);
-		setTokensToBuy(0);
-		await getTokenBalance();
-	};
+  
+  const buyTokens = async () => {
+    const tokenContract = await getTokenContract();
+    setShowBuyTokens(false);
+    await toast.promise(
+      (async () => {
+        const amount = tokensToBuy * 1e14;
+        const tx = await tokenContract.buyTokens({
+          value: amount,
+        });
+        const receipt = await tx.wait();
+        console.log(receipt);
+        return receipt;
+      })(),
+      {
+        loading: "Buying tokens...",
+        success: "Tokens bought successfully",
+        error: "Failed to buy tokens",
+      }
+    );
+    setTokensToBuy(0);
+    await getTokenBalance();
+  };
 
 	const feedPet = (foodItem) => {
 		const updatedFoodBag = foodBag
@@ -784,6 +784,64 @@ function GamePopup({ game, onClose }) {
 }
 
 function BuyTokensPopup({ tokensToBuy, setTokensToBuy, onBuy, onClose }) {
+  const [showBuyTokens, setShowBuyTokens] = useState(0);
+
+  useEffect(() => {
+    const buyTokensInEth = ethers.formatEther(BigInt(tokensToBuy * 1e14));
+    setShowBuyTokens(buyTokensInEth);
+  }, [tokensToBuy]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+    >
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.9, opacity: 0 }}
+        className="bg-white rounded-lg p-6 max-w-md w-full relative"
+      >
+        <Button
+          className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+          variant="ghost"
+          size="icon"
+          onClick={onClose}
+        >
+          <X className="w-5 h-5" />
+        </Button>
+        <h3 className="text-2xl font-bold mb-4 text-indigo-600">Buy Tokens</h3>
+        <div className="flex items-center justify-between mb-4">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setTokensToBuy(Math.max(0, tokensToBuy - 10))}
+          >
+            <Minus className="w-4 h-4" />
+          </Button>
+          <span className="text-2xl font-bold">{tokensToBuy}</span>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => {
+              setTokensToBuy(tokensToBuy + 10);              
+            }}
+          >
+            <Plus className="w-4 h-4" />
+          </Button>
+        </div>
+        <p className="text-center mb-4">Total: {showBuyTokens} ETH</p>
+        <Button
+          className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
+          onClick={onBuy}
+        >
+          Buy Tokens
+        </Button>
+      </motion.div>
+    </motion.div>
+  );
 	return (
 		<motion.div
 			initial={{ opacity: 0 }}
