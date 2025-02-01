@@ -1,101 +1,434 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import {
+  PawPrint,
+  Wallet,
+  Dumbbell,
+  Brain,
+  Coins,
+  ShoppingBag,
+  Twitter,
+  DiscIcon as Discord,
+  Github,
+} from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
+import { useAppKitAccount, useAppKit } from "@reown/appkit/react";
+import { useRouter } from "next/navigation";
 
-export default function Home() {
+export default function LandingPage() {
+  const [mounted, setMounted] = useState(false);
+  const { scrollYProgress } = useScroll();
+  const { isConnected } = useAppKitAccount();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (isConnected) {
+      const timeout = setTimeout(() => {
+        router.push("/dashboard");
+      }, 3000);
+
+      // Cleanup the timeout on unmount or if isConnected changes
+      return () => clearTimeout(timeout);
+    }
+  }, [isConnected, router]);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-100 to-purple-100 text-gray-800 overflow-hidden">
+      <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]"></div>
+      <Header />
+      <main>
+        <Hero scrollYProgress={scrollYProgress} />
+        <Features scrollYProgress={scrollYProgress} />
+        <HowItWorks scrollYProgress={scrollYProgress} />
+        <PetShowcase scrollYProgress={scrollYProgress} />
+        <CallToAction scrollYProgress={scrollYProgress} />
       </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      <Footer />
     </div>
+  );
+}
+
+function Header() {
+  return (
+    <motion.header
+      initial={{ opacity: 0, y: -50 }} // Initial animation state
+      animate={{ opacity: 1, y: 0 }} // Animate to this state
+      transition={{ duration: 0.5 }} // Animation duration
+      className="fixed w-full z-10 bg-white bg-opacity-70 backdrop-blur-md shadow-md" // Tailwind classes for styling
+    >
+      <div className="container mx-auto px-6 py-4 flex justify-between items-center">
+        <Link
+          href="/"
+          className="flex items-center space-x-2"
+          aria-label="Home"
+        >
+          <PawPrint className="w-8 h-8 text-indigo-600" /> {/* Icon */}
+          <span className="text-2xl font-bold text-indigo-600">PetFi</span>{" "}
+          {/* Brand Name */}
+        </Link>
+
+        <nav>
+          <ul className="flex items-center space-x-8">
+            <li>
+              <appkit-button />
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </motion.header>
+  );
+}
+
+function Hero({ scrollYProgress }) {
+  const y = useTransform(scrollYProgress, [0, 0.5], [0, -50]);
+  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
+  const { isConnected } = useAppKitAccount();
+  return (
+    <motion.section
+      className="pt-32 pb-20 px-4 relative"
+      style={{ y, opacity }}
+    >
+      <div className="container mx-auto text-center relative z-10">
+        <motion.h1
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="text-5xl md:text-6xl font-bold mb-6 text-indigo-600"
+        >
+          Welcome to PetFi
+        </motion.h1>
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+          className="text-xl mb-8 max-w-2xl mx-auto text-gray-600"
+        >
+          The Web3 blockchain game where you nurture virtual pets, compete in
+          mini-games, and earn real rewards!
+        </motion.p>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.6 }}
+          className="flex justify-center"
+        >
+          {isConnected ? (
+            <Button
+              size="lg"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white"
+            >
+              <div className="flex items-center">
+                Redirecting to Dashboard...
+              </div>
+            </Button>
+          ) : (
+            <appkit-button sz='md' label="Connect Wallet to Start" />
+          )}
+        </motion.div>
+      </div>
+    </motion.section>
+  );
+}
+
+function Features({ scrollYProgress }) {
+  const features = [
+    {
+      icon: <Dumbbell className="w-12 h-12 text-indigo-600" />,
+      title: "Enhance Pet Stats",
+      description:
+        "Feed your pet different items to improve strength, intelligence, and more.",
+    },
+    {
+      icon: <Brain className="w-12 h-12 text-indigo-600" />,
+      title: "Play-to-Earn Games",
+      description:
+        "Compete in mini-games where both your skills and your pet's stats matter.",
+    },
+    {
+      icon: <Coins className="w-12 h-12 text-indigo-600" />,
+      title: "Earn PetFi Tokens",
+      description:
+        "Win games and complete tasks to earn PetFi Tokens, our in-game currency.",
+    },
+    {
+      icon: <ShoppingBag className="w-12 h-12 text-indigo-600" />,
+      title: "NFT Marketplace",
+      description: "Trade your unique pet NFTs across multiple blockchains.",
+    },
+  ];
+
+  return (
+    <section id="features" className="py-20 px-4 relative bg-white">
+      <div className="container mx-auto">
+        <h2 className="text-4xl font-bold mb-12 text-center text-indigo-600">
+          Game Features
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {features.map((feature, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+              viewport={{ once: true, amount: 0.3 }}
+              className="bg-indigo-50 p-6 rounded-lg shadow-lg border border-indigo-100 hover:border-indigo-300 transition-all hover:shadow-indigo-100 hover:shadow-xl"
+            >
+              <div className="mb-4">{feature.icon}</div>
+              <h3 className="text-xl font-semibold mb-2 text-indigo-600">
+                {feature.title}
+              </h3>
+              <p className="text-gray-600">{feature.description}</p>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function HowItWorks({ scrollYProgress }) {
+  const steps = [
+    {
+      title: "Connect Your Wallet",
+      description: "Link your Web3 wallet to start your PetFi journey.",
+      icon: <Wallet className="w-12 h-12 text-white" />,
+    },
+    {
+      title: "Mint Your Pet NFT",
+      description:
+        "Create your unique virtual pet as an NFT on the blockchain.",
+      icon: <PawPrint className="w-12 h-12 text-white" />,
+    },
+    {
+      title: "Train and Nurture",
+      description: "Feed and care for your pet to improve its stats.",
+      icon: <Dumbbell className="w-12 h-12 text-white" />,
+    },
+    {
+      title: "Compete and Earn",
+      description: "Join mini-games and earn PetFi Tokens as rewards.",
+      icon: <Coins className="w-12 h-12 text-white" />,
+    },
+  ];
+
+  return (
+    <section id="how-it-works" className="py-20 px-4 relative bg-indigo-100">
+      <div className="container mx-auto">
+        <h2 className="text-4xl font-bold mb-12 text-center text-indigo-600">
+          How It Works
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {steps.map((step, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+              viewport={{ once: true, amount: 0.3 }}
+              className="text-center"
+            >
+              <div className="mb-4 relative">
+                <div className="w-24 h-24 mx-auto rounded-full bg-indigo-600 flex items-center justify-center">
+                  {step.icon}
+                </div>
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-full w-8 h-8 flex items-center justify-center text-xl font-bold border-2 border-indigo-600 text-indigo-600">
+                  {index + 1}
+                </div>
+              </div>
+              <h3 className="text-xl font-semibold mb-2 text-indigo-600">
+                {step.title}
+              </h3>
+              <p className="text-gray-600">{step.description}</p>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function PetShowcase({ scrollYProgress }) {
+  const pets = [
+    {
+      name: "Strength Pet",
+      image: "/placeholder.svg?height=300&width=300",
+      description: "Excels in physical challenges",
+    },
+    {
+      name: "Intelligence Pet",
+      image: "/placeholder.svg?height=300&width=300",
+      description: "Masters puzzle-based games",
+    },
+    {
+      name: "Agility Pet",
+      image: "/placeholder.svg?height=300&width=300",
+      description: "Dominates in speed-based contests",
+    },
+  ];
+
+  return (
+    <section id="pets" className="py-20 px-4 relative bg-white">
+      <div className="container mx-auto">
+        <h2 className="text-4xl font-bold mb-12 text-center text-indigo-600">
+          Meet the Pets
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {pets.map((pet, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+              viewport={{ once: true, amount: 0.3 }}
+              className="bg-indigo-50 rounded-lg overflow-hidden shadow-lg border border-indigo-100 hover:border-indigo-300 transition-all hover:shadow-indigo-100 hover:shadow-xl"
+            >
+              <Image
+                src={pet.image || "/placeholder.svg"}
+                alt={pet.name}
+                width={300}
+                height={300}
+                className="w-full"
+              />
+              <div className="p-6">
+                <h3 className="text-2xl font-semibold mb-2 text-indigo-600">
+                  {pet.name}
+                </h3>
+                <p className="text-gray-600">{pet.description}</p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function CallToAction({ scrollYProgress }) {
+  const scale = useTransform(scrollYProgress, [0.8, 1], [0.9, 1]);
+  const opacity = useTransform(scrollYProgress, [0.8, 1], [0.5, 1]);
+  const { isConnected } = useAppKitAccount();
+  return (
+    <motion.section
+      className="py-20 px-4 relative bg-indigo-100"
+      style={{ scale, opacity }}
+    >
+      <div className="container mx-auto text-center">
+        <motion.h2
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          viewport={{ once: true }}
+          className="text-4xl font-bold mb-6 text-indigo-600"
+        >
+          Ready to Start Your PetFi Adventure?
+        </motion.h2>
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          viewport={{ once: true }}
+          className="text-xl mb-8 max-w-2xl mx-auto text-gray-600"
+        >
+          Connect your wallet now and join the exciting world of blockchain pet
+          care and play-to-earn gaming!
+        </motion.p>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+          viewport={{ once: true }}
+          className="flex justify-center"
+        >
+            {isConnected ? (
+                <Button
+                  size="lg"
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                >
+              <div className="flex items-center">
+                Redirecting to Dashboard...
+              </div>
+          </Button>
+            ) : (
+              <appkit-button sz='md' label="Connect Wallet to Start" />
+            )}
+        </motion.div>
+      </div>
+    </motion.section>
+  );
+}
+
+function Footer() {
+  return (
+    <footer className="bg-white text-gray-600 py-8">
+      <div className="container mx-auto px-4">
+        <div className="flex flex-col md:flex-row justify-between items-center">
+          <div className="flex items-center mb-4 md:mb-0">
+            <PawPrint className="w-8 h-8 text-indigo-600 mr-2" />
+            <span className="text-2xl font-bold text-indigo-600">PetFi</span>
+          </div>
+          <nav className="mb-4 md:mb-0">
+            <ul className="flex space-x-6">
+              <li>
+                <Link
+                  href="#features"
+                  className="hover:text-indigo-600 transition-colors"
+                >
+                  Features
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="#how-it-works"
+                  className="hover:text-indigo-600 transition-colors"
+                >
+                  How It Works
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="#pets"
+                  className="hover:text-indigo-600 transition-colors"
+                >
+                  Pets
+                </Link>
+              </li>
+            </ul>
+          </nav>
+          <div className="flex space-x-4">
+            <a
+              href="#"
+              className="text-gray-400 hover:text-indigo-600 transition-colors"
+            >
+              <Twitter />
+            </a>
+            <a
+              href="#"
+              className="text-gray-400 hover:text-indigo-600 transition-colors"
+            >
+              <Discord />
+            </a>
+            <a
+              href="#"
+              className="text-gray-400 hover:text-indigo-600 transition-colors"
+            >
+              <Github />
+            </a>
+          </div>
+        </div>
+        <div className="mt-8 text-center text-sm text-gray-500">
+          © {new Date().getFullYear()} PetFi. All rights reserved.
+        </div>
+      </div>
+    </footer>
   );
 }
