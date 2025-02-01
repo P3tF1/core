@@ -3,18 +3,38 @@
 import type React from "react"
 import { useState, useRef, useEffect } from "react"
 import { useGameLoop } from "./hooks/useGameLoop"
-import type { GameState, Spaceship, Meteorite, Laser } from "./types"
+import type { GameState, Spaceship, Meteorite, Laser, GameConfig } from "./types"
 
 const CANVAS_WIDTH = 800
 const CANVAS_HEIGHT = 600
 const SPACESHIP_WIDTH = 50
 const SPACESHIP_HEIGHT = 50
 const METEORITE_SIZE = 40
-const LASER_SPEED = 5
 const LASER_WIDTH = 3
 const LASER_HEIGHT = 15
 const INITIAL_COUNTDOWN = 3
 const SPACESHIP_SPEED = 5
+
+const ASTEROID_COLORS = ["#8B4513", "#A0522D", "#D2691E", "#CD853F", "#DEB887"]
+
+// Game configuration
+const gameConfig: GameConfig = {
+    meteoriteSpawnRate: 0.02,
+    meteoriteSpeedBase: 1,
+    meteoriteSpeedVariance: 0.5,
+    meteoriteHitsMean: 3,
+    meteoriteHitsStdDev: 1,
+    laserSpeed: 5,
+    laserFireRate: 0.1,
+}
+
+// Helper function for normal distribution
+function normalDistribution(mean: number, stdDev: number): number {
+    const u1 = Math.random()
+    const u2 = Math.random()
+    const z = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2)
+    return Math.round(z * stdDev + mean)
+}
 
 export default function Home() {
     const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -71,16 +91,10 @@ export default function Home() {
         const ctx = canvas.getContext("2d")
         if (!ctx) return
 
-        // Move spaceship based on arrow key input
         moveSpaceship()
-
-        // Clear canvas
         ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
-
-        // Draw spaceship
         drawSpaceship(ctx, spaceship)
 
-        // Update and draw meteorites
         setMeteorites((prev) => {
             return prev
                 .map((meteorite) => ({
@@ -94,12 +108,11 @@ export default function Home() {
             drawMeteorite(ctx, meteorite)
         })
 
-        // Update and draw lasers
         setLasers((prev) => {
             return prev
                 .map((laser) => ({
                     ...laser,
-                    y: laser.y - LASER_SPEED,
+                    y: laser.y - gameConfig.laserSpeed,
                 }))
                 .filter((laser) => laser.y > 0)
         })
@@ -108,20 +121,16 @@ export default function Home() {
             drawLaser(ctx, laser)
         })
 
-        // Check collisions
         checkCollisions()
 
-        // Spawn new meteorites
-        if (Math.random() < 0.02 * gameState.level) {
+        if (Math.random() < gameConfig.meteoriteSpawnRate * gameState.level) {
             spawnMeteorite()
         }
 
-        // Auto-fire lasers
-        if (Math.random() < 0.1) {
+        if (Math.random() < gameConfig.laserFireRate) {
             fireLaser()
         }
 
-        // Check game over condition
         if (meteorites.some((meteorite) => meteorite.y + METEORITE_SIZE > spaceship.y)) {
             setGameState((prev) => ({ ...prev, gameOver: true }))
         }
@@ -154,7 +163,7 @@ export default function Home() {
     }
 
     const drawMeteorite = (ctx: CanvasRenderingContext2D, meteorite: Meteorite) => {
-        ctx.fillStyle = "#8B4513"
+        ctx.fillStyle = meteorite.color
         ctx.beginPath()
         ctx.arc(meteorite.x + meteorite.size / 2, meteorite.y + meteorite.size / 2, meteorite.size / 2, 0, Math.PI * 2)
         ctx.fill()
@@ -163,7 +172,7 @@ export default function Home() {
         ctx.font = "16px Arial"
         ctx.textAlign = "center"
         ctx.textBaseline = "middle"
-        ctx.fillText(meteorite.strength.toString(), meteorite.x + meteorite.size / 2, meteorite.y + meteorite.size / 2)
+        ctx.fillText(meteorite.hits.toString(), meteorite.x + meteorite.size / 2, meteorite.y + meteorite.size / 2)
     }
 
     const drawLaser = (ctx: CanvasRenderingContext2D, laser: Laser) => {
@@ -182,29 +191,34 @@ export default function Home() {
 
                     if (hitLasers.length > 0) {
                         setLasers((prev) => prev.filter((laser) => !hitLasers.includes(laser)))
+                        const newHits = Math.max(0, meteorite.hits - gameState.playerStrength * hitLasers.length)
+                        if (newHits === 0) {
+                            setGameState((prev) => ({
+                                ...prev,
+                                score: prev.score + meteorite.maxHits * 10,
+                            }))
+                        }
                         return {
                             ...meteorite,
-                            strength: meteorite.strength - gameState.playerStrength * hitLasers.length,
+                            hits: newHits,
                         }
                     }
                     return meteorite
                 })
-                .filter((meteorite) => meteorite.strength > 0)
+                .filter((meteorite) => meteorite.hits > 0)
         })
-
-        setGameState((prev) => ({
-            ...prev,
-            score: prev.score + 10 * gameState.playerStrength,
-        }))
     }
 
     const spawnMeteorite = () => {
+        const hits = normalDistribution(gameConfig.meteoriteHitsMean, gameConfig.meteoriteHitsStdDev)
         const newMeteorite: Meteorite = {
             x: Math.random() * (CANVAS_WIDTH - METEORITE_SIZE),
             y: -METEORITE_SIZE,
-            speed: 1 + Math.random() * 2 * (gameState.level / gameState.playerIntelligence),
-            strength: Math.ceil(Math.random() * 5 * gameState.level),
+            speed: gameConfig.meteoriteSpeedBase + (Math.random() * 2 - 1) * gameConfig.meteoriteSpeedVariance,
+            hits: Math.max(1, hits),
+            maxHits: Math.max(1, hits),
             size: METEORITE_SIZE,
+            color: ASTEROID_COLORS[Math.floor(Math.random() * ASTEROID_COLORS.length)],
         }
         setMeteorites((prev) => [...prev, newMeteorite])
     }
@@ -213,7 +227,7 @@ export default function Home() {
         const newLaser: Laser = {
             x: spaceship.x + SPACESHIP_WIDTH / 2,
             y: spaceship.y,
-            speed: LASER_SPEED,
+            speed: gameConfig.laserSpeed,
         }
         setLasers((prev) => [...prev, newLaser])
     }

@@ -18,13 +18,25 @@ export interface Meteorite {
     x: number
     y: number
     speed: number
-    strength: number
+    hits: number
+    maxHits: number
     size: number
+    color: string
 }
 
 export interface Laser {
     x: number
     y: number
     speed: number
+}
+
+export interface GameConfig {
+    meteoriteSpawnRate: number
+    meteoriteSpeedBase: number
+    meteoriteSpeedVariance: number
+    meteoriteHitsMean: number
+    meteoriteHitsStdDev: number
+    laserSpeed: number
+    laserFireRate: number
 }
 
