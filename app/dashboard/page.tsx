@@ -752,7 +752,7 @@ function BuyPetPopup({ onBuy, onClose, balance }) {
       className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
     >
       <motion.div
-        initial={{ scale: 09, opacity: 0 }}
+        initial={{ scale: 9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.9, opacity: 0 }}
         className="bg-white rounded-lg p-6 max-w-md w-full relative"
