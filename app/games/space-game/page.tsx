@@ -19,6 +19,39 @@ const SPACESHIP_SPEED = 5
 
 const ASTEROID_COLORS = ["#8B4513", "#A0522D", "#D2691E", "#CD853F", "#DEB887"]
 
+const samplePetsForTrade = [
+    {
+        id: 1,
+        name: "Luna",
+        type: "Unicorn",
+        level: 8,
+        strength: 15,
+        intelligence: 18,
+        icon: "🦄",
+        price: 500,
+    },
+    {
+        id: 2,
+        name: "Rex",
+        type: "T-Rex",
+        level: 10,
+        strength: 20,
+        intelligence: 12,
+        icon: "🦖",
+        price: 750,
+    },
+    {
+        id: 3,
+        name: "Nessie",
+        type: "Sea Monster",
+        level: 12,
+        strength: 18,
+        intelligence: 16,
+        icon: "🐉",
+        price: 1000,
+    },
+];
+
 // Game configuration
 const gameConfig: GameConfig = {
     meteoriteSpawnRate: 0.02,
@@ -39,6 +72,14 @@ function normalDistribution(mean: number, stdDev: number): number {
 }
 
 export default function Home() {
+    const [pet, setPet] = useState<any>(null);
+    const [balance, setBalance] = useState(0);
+    useEffect(() => {
+        setPet(samplePetsForTrade[0]);
+        // setAudioContext(
+        //     new (window.AudioContext || (window as any).webkitAudioContext)()
+        // );
+    }, []);
     const canvasRef = useRef<HTMLCanvasElement>(null)
     const [gameState, setGameState] = useState<GameState>({
         level: 1,
@@ -307,7 +348,7 @@ export default function Home() {
     return (
         <div>
             {" "}
-            <Navbar balance={12463}/>
+            <Navbar balance={balance}/>
             <div
                 className="min-h-screen bg-gradient-to-b from-purple-50 to-white dark:from-purple-950 dark:to-zinc-900 p-6">
                 <div className="flex flex-col lg:flex-row gap-6 max-w-6xl mx-auto">
@@ -374,53 +415,45 @@ export default function Home() {
                                     </div>
                                 )}
                             </div>
-                            <div className="mt-4 text-white">
-                                <p>Level: {gameState.level}</p>
-                                <p>Score: {gameState.score}</p>
-                                <p>Strength: {gameState.playerStrength}</p>
-                                <p>Intelligence: {gameState.playerIntelligence}</p>
-                            </div>
-                            <div className="mt-4 text-white text-center">
-                                <p>Use left and right arrow keys or mouse to move the spaceship</p>
-                            </div>
                         </div>
                     </div>
                     {/* Game Info Panel */}
                     <aside
                         className="lg:w-80 bg-white dark:bg-zinc-900 p-6 rounded-xl shadow-lg border border-purple-100 dark:border-purple-900 sticky top-6 self-start">
-                        <h3 className="text-xl font-bold text-purple-600 dark:text-purple-400 mb-6">
-                            Game Stats
-                        </h3>
-                        <div className="flex flex-col items-center mb-6">
-                            <div
-                                className="w-24 h-24 flex items-center justify-center bg-purple-100 dark:bg-purple-900/30 rounded-full mb-4">
-                                <Hammer className="w-12 h-12 text-purple-600 dark:text-purple-400"/>
-                            </div>
-                            <h4 className="text-xl font-bold mb-1">Rock Breaker</h4>
-                            <p className="text-gray-600 dark:text-gray-400">
-                                Break rocks to earn points!
-                            </p>
-                        </div>
-                        <div className="space-y-4">
-                            <StatBar
-                                label="Score"
-                                value={200}
-                                max={1000}
-                                color="bg-purple-500"
-                            />
-                            <StatBar
-                                label="Time Left"
-                                value={201}
-                                max={205}
-                                color="bg-blue-500"
-                            />
-                            <StatBar
-                                label="Rocks Broken"
-                                value={Math.floor(10 / 5)}
-                                max={100}
-                                color="bg-green-500"
-                            />
-                        </div>
+                        <PetPanel pet={pet}/>
+                        {/*<h3 className="text-xl font-bold text-purple-600 dark:text-purple-400 mb-6">*/}
+                        {/*    Game Stats*/}
+                        {/*</h3>*/}
+                        {/*<div className="flex flex-col items-center mb-6">*/}
+                        {/*    <div*/}
+                        {/*        className="w-24 h-24 flex items-center justify-center bg-purple-100 dark:bg-purple-900/30 rounded-full mb-4">*/}
+                        {/*        <Hammer className="w-12 h-12 text-purple-600 dark:text-purple-400"/>*/}
+                        {/*    </div>*/}
+                        {/*    <h4 className="text-xl font-bold mb-1">Rock Breaker</h4>*/}
+                        {/*    <p className="text-gray-600 dark:text-gray-400">*/}
+                        {/*        Break rocks to earn points!*/}
+                        {/*    </p>*/}
+                        {/*</div>*/}
+                        {/*<div className="space-y-4">*/}
+                        {/*    <StatBar*/}
+                        {/*        label="Score"*/}
+                        {/*        value={200}*/}
+                        {/*        max={1000}*/}
+                        {/*        color="bg-purple-500"*/}
+                        {/*    />*/}
+                        {/*    <StatBar*/}
+                        {/*        label="Time Left"*/}
+                        {/*        value={201}*/}
+                        {/*        max={205}*/}
+                        {/*        color="bg-blue-500"*/}
+                        {/*    />*/}
+                        {/*    <StatBar*/}
+                        {/*        label="Rocks Broken"*/}
+                        {/*        value={Math.floor(10 / 5)}*/}
+                        {/*        max={100}*/}
+                        {/*        color="bg-green-500"*/}
+                        {/*    />*/}
+                        {/*</div>*/}
                     </aside>
                 </div>
             </div>
