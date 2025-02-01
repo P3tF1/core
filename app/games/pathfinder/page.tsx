@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Trophy, Brain, Coins } from "lucide-react";
 import PathfinderGame from "./components/PathfinderGame";
 import { useSearchParams } from "next/navigation";
+import Navbar from "@/components/navbar";
 
 const samplePetsForTrade = [
 	{
@@ -44,6 +45,7 @@ export default function Home() {
 	const [showReward, setShowReward] = useState(false);
 	const [earnedCoins, setEarnedCoins] = useState(0);
 	const searchParams = useSearchParams();
+	const [balance, setBalance] = useState(0);
 
 	useEffect(() => {
 		const fetchPetDetails = async () => {
@@ -103,52 +105,56 @@ export default function Home() {
 	}
 
 	return (
-		<main className="min-h-screen bg-gradient-to-b from-purple-50 to-white dark:from-purple-950 dark:to-zinc-900 p-6">
-			<div className="flex flex-col lg:flex-row gap-6 max-w-6xl mx-auto">
-				<div className="flex-1 space-y-6">
-					{/* Stats Bar */}
-					<div className="bg-white dark:bg-zinc-900 p-4 rounded-xl shadow-lg border border-purple-100 dark:border-purple-900">
-						<div className="flex items-center justify-between gap-4">
-							<div className="flex items-center gap-3 bg-purple-50 dark:bg-purple-900/30 px-4 py-2 rounded-lg">
-								<Brain className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-								<div>
-									<div className="text-sm text-purple-600 dark:text-purple-400 font-medium">
-										Level
+		<div>
+			<Navbar balance={balance} />
+
+			<main className="min-h-screen bg-gradient-to-b from-purple-50 to-white dark:from-purple-950 dark:to-zinc-900 p-6">
+				<div className="flex flex-col lg:flex-row gap-6 max-w-6xl mx-auto">
+					<div className="flex-1 space-y-6">
+						{/* Stats Bar */}
+						<div className="bg-white dark:bg-zinc-900 p-4 rounded-xl shadow-lg border border-purple-100 dark:border-purple-900">
+							<div className="flex items-center justify-between gap-4">
+								<div className="flex items-center gap-3 bg-purple-50 dark:bg-purple-900/30 px-4 py-2 rounded-lg">
+									<Brain className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+									<div>
+										<div className="text-sm text-purple-600 dark:text-purple-400 font-medium">
+											Level
+										</div>
+										<div className="text-2xl font-bold">{pet.level}</div>
 									</div>
-									<div className="text-2xl font-bold">{pet.level}</div>
 								</div>
-							</div>
-							<div className="flex items-center gap-3 bg-purple-50 dark:bg-purple-900/30 px-4 py-2 rounded-lg">
-								<Coins className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-								<div>
-									<div className="text-sm text-purple-600 dark:text-purple-400 font-medium">
-										Coins Won
+								<div className="flex items-center gap-3 bg-purple-50 dark:bg-purple-900/30 px-4 py-2 rounded-lg">
+									<Coins className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+									<div>
+										<div className="text-sm text-purple-600 dark:text-purple-400 font-medium">
+											Coins Won
+										</div>
+										<div className="text-2xl font-bold">{coinsWon}</div>
 									</div>
-									<div className="text-2xl font-bold">{coinsWon}</div>
 								</div>
+								{showReward && (
+									<div className="absolute top-4 right-4 animate-bounce bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400 px-4 py-2 rounded-lg flex items-center gap-2">
+										<Trophy className="w-5 h-5" />
+										<span>+{earnedCoins} coins!</span>
+									</div>
+								)}
 							</div>
-							{showReward && (
-								<div className="absolute top-4 right-4 animate-bounce bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400 px-4 py-2 rounded-lg flex items-center gap-2">
-									<Trophy className="w-5 h-5" />
-									<span>+{earnedCoins} coins!</span>
-								</div>
-							)}
+						</div>
+
+						{/* Game Container */}
+						<div className="bg-white dark:bg-zinc-900 p-6 rounded-xl shadow-lg border border-purple-100 dark:border-purple-900">
+							<PathfinderGame
+								level={pet.level}
+								onGameComplete={handleGameComplete}
+							/>
 						</div>
 					</div>
 
-					{/* Game Container */}
-					<div className="bg-white dark:bg-zinc-900 p-6 rounded-xl shadow-lg border border-purple-100 dark:border-purple-900">
-						<PathfinderGame
-							level={pet.level}
-							onGameComplete={handleGameComplete}
-						/>
-					</div>
+					{/* Pet Panel */}
+					<PetPanel pet={pet} />
 				</div>
-
-				{/* Pet Panel */}
-				<PetPanel pet={pet} />
-			</div>
-		</main>
+			</main>
+		</div>
 	);
 }
 

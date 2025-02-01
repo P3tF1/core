@@ -4,6 +4,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import Navbar from "@/components/navbar";
 import {
 	X,
 	Plus,
@@ -396,39 +397,6 @@ export default function Dashboard() {
 	);
 }
 
-function Navbar({ balance }) {
-	return (
-		<motion.nav
-			className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md py-4 px-8 sticky top-0 z-10"
-			initial={{ y: -100 }}
-			animate={{ y: 0 }}
-			transition={{ type: "spring", stiffness: 300, damping: 30 }}
-		>
-			<div className="max-w-6xl mx-auto flex justify-between items-center">
-				<motion.div
-					className="flex items-center space-x-2"
-					whileHover={{ scale: 1.05 }}
-					whileTap={{ scale: 0.95 }}
-				>
-					<PawPrint className="w-8 h-8 text-yellow-400" />
-					<span className="text-2xl font-bold text-yellow-400">PetFi</span>
-				</motion.div>
-				<div className="flex items-center space-x-4">
-					<motion.div
-						className="bg-indigo-700 rounded-full py-2 px-4 flex items-center"
-						whileHover={{ scale: 1.05 }}
-					>
-						<Coins className="w-5 h-5 text-yellow-400 mr-2" />
-						<span className="font-semibold">{balance} PetFi</span>
-					</motion.div>
-					<Button variant="ghost" className="text-white hover:text-yellow-400">
-						<appkit-button />
-					</Button>
-				</div>
-			</div>
-		</motion.nav>
-	);
-}
 
 function Sidenav({ activeSection, setActiveSection, setShowBuyTokens }) {
 	const navItems = [
@@ -752,12 +720,12 @@ function MiniGames({ setSelectedGame, selectedPet }) {
 function GameItem({ game, setSelectedGame, selectedPet }) {
 	const router = useRouter();
 
-const startGame = () => {
-	const queryString = new URLSearchParams({
-		pet: JSON.stringify(selectedPet.id),
-	}).toString();
-	router.push(`${game.url}?${queryString}`);
-};
+	const startGame = () => {
+		const queryString = new URLSearchParams({
+			pet: JSON.stringify(selectedPet.id),
+		}).toString();
+		router.push(`${game.url}?${queryString}`);
+	};
 	return (
 		<motion.div
 			className="bg-indigo-50 p-4 rounded-lg cursor-pointer hover:bg-indigo-100 transition-colors"
