@@ -10,7 +10,7 @@ import {
   Brain,
   Coins,
   ShoppingBag,
-  Twitter,
+  X,
   DiscIcon as Discord,
   Github,
 } from "lucide-react";
@@ -398,7 +398,7 @@ function Footer() {
               href="#"
               className="text-gray-400 hover:text-indigo-600 transition-colors"
             >
-              <Twitter />
+              <X />
             </a>
             <a
               href="#"
