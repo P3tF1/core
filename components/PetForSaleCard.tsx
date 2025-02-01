@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import type { Pet } from "@/types";
 import Image from "next/image";
-import {testImageLink} from "@/constants/gameData";
+import { testImageLink } from "@/constants/gameData";
 
 interface PetForSaleCardProps {
 	pet: Pet;
@@ -11,6 +11,20 @@ interface PetForSaleCardProps {
 }
 
 export function PetForSaleCard({ pet, onBuy, balance }: PetForSaleCardProps) {
+	const IMAGE_URL = process.env.NEXT_PUBLIC_IMAGE_URL;
+
+	const getImageUrl = (pet: Pet) => {
+		if (!IMAGE_URL) return testImageLink;
+		return IMAGE_URL.replace("[Type]", encodeURIComponent(pet.type))
+			.replace("[Level]", encodeURIComponent(pet.level.toString()))
+			.replace("[Strength]", encodeURIComponent(pet.strength.toString()))
+			.replace(
+				"[Intelligence]",
+				encodeURIComponent(pet.intelligence.toString())
+			);
+	};
+	const imageUrl = getImageUrl(pet);
+
 	return (
 		<motion.div
 			className="bg-white p-4 rounded-lg shadow-md border border-indigo-100"
@@ -20,14 +34,14 @@ export function PetForSaleCard({ pet, onBuy, balance }: PetForSaleCardProps) {
 			<div className="flex items-center justify-between mb-2">
 				<h4 className="font-semibold text-lg text-indigo-600">{pet.name}</h4>
 				<Image
-					src={pet.image || testImageLink}
+					src={`${imageUrl}` || testImageLink}
 					alt={pet.name}
 					width={50}
 					height={50}
 					className="rounded-full"
 				/>
 			</div>
-			<p className="text-gray-600">Type: Dragon</p>
+			<p className="text-gray-600">Type: {pet.type}</p>
 			<p className="text-gray-600">Level: {pet.level}</p>
 			<div className="mt-2 space-y-1">
 				<p className="text-gray-600">

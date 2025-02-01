@@ -1,25 +1,9 @@
-import { Brain, Dumbbell, ShoppingBag, Map } from "lucide-react";
+import { ShoppingBag, Map ,Rocket} from "lucide-react";
 
 export const testImageLink =
 	"https://fastly.picsum.photos/id/728/200/300.jpg?hmac=J-q7xv6gzVRQmKunEBaFotw4F0dJ1Q6OnjN85VoBk8o";
 
 export const games = [
-	{
-		name: "Speed Math Challenge",
-		description: "Test your math skills in a fast-paced environment!",
-		strategy: "Focus on quick mental calculations and pattern recognition.",
-		benefits: "Improves your pet's intelligence and reaction time.",
-		icon: Brain,
-		url: "/games/speed-math",
-	},
-	{
-		name: "Card Flip Challenge",
-		description: "Match pairs of cards in the shortest time possible!",
-		strategy: "Memorize card positions and use logical deduction.",
-		benefits: "Enhances your pet's memory and cognitive abilities.",
-		icon: Dumbbell,
-		url: "/games/card-flip",
-	},
 	{
 		name: "Rock Breaker",
 		description: "Break as many rocks as you can before time runs out!",
@@ -36,6 +20,15 @@ export const games = [
 		icon: Map,
 		url: "/games/pathfinder",
 	},
+	{
+		name: "Asteroid Miner",
+		description: "Break Asteroid using spaceship before it touches ground.",
+		strategy: "Develop a rhythm and aim for combos to maximize points.",
+		benefits: "Boosts your pet's strength and intelligence.",
+		icon: Rocket,
+		url: "/games/asteroid-miner",
+
+	}
 ];
 
 export const samplePetsForTrade = [
