@@ -181,12 +181,15 @@ export default function Dashboard() {
 	const feedPet = async (foodItem, pet) => {
 		const contract = await getNftGenContract();
 		if (contract == null) return;
+    setShowFeedPopup(false);
 		await showToast.promise(contract.feedPet(pet.id, foodItem.id), {
 			loading: "Feeding pet...",
 			success: "Pet fed successfully",
 			error: "Failed to feed pet",
 		});
-		findPet();
+		setTimeout(async() => {
+      await findPet();
+    }, 4000);
 	};
 
 	const findPet = async () => {

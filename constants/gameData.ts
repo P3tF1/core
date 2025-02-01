@@ -10,6 +10,7 @@ export const games = [
 		strategy: "Focus on quick mental calculations and pattern recognition.",
 		benefits: "Improves your pet's intelligence and reaction time.",
 		icon: Brain,
+		url: "/games/speed-math",
 	},
 	{
 		name: "Card Flip Challenge",
@@ -17,6 +18,7 @@ export const games = [
 		strategy: "Memorize card positions and use logical deduction.",
 		benefits: "Enhances your pet's memory and cognitive abilities.",
 		icon: Dumbbell,
+		url: "/games/card-flip",
 	},
 	{
 		name: "Rock Breaker",
@@ -24,6 +26,7 @@ export const games = [
 		strategy: "Develop a rhythm and aim for combos to maximize points.",
 		benefits: "Boosts your pet's strength and endurance.",
 		icon: ShoppingBag,
+		url: "/games/rock-breaker",
 	},
 	{
 		name: "Pathfinder",
@@ -31,6 +34,7 @@ export const games = [
 		strategy: "Plan your moves efficiently and use the shortest path to win.",
 		benefits: "Enhances problem-solving skills and spatial awareness.",
 		icon: Map,
+		url: "/games/pathfinder",
 	},
 ];
 

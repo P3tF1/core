@@ -18,6 +18,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useAppKitAccount } from "@reown/appkit/react";
 import { useRouter } from "next/navigation";
+import {testImageLink} from "@/constants/gameData";
 
 export default function LandingPage() {
 	const [mounted, setMounted] = useState(false);
@@ -259,17 +260,17 @@ function PetShowcase({ scrollYProgress }) {
 	const pets = [
 		{
 			name: "Strength Pet",
-			image: "/placeholder.svg?height=300&width=300",
+			image: testImageLink,
 			description: "Excels in physical challenges",
 		},
 		{
 			name: "Intelligence Pet",
-			image: "/placeholder.svg?height=300&width=300",
+			image: testImageLink,
 			description: "Masters puzzle-based games",
 		},
 		{
 			name: "Agility Pet",
-			image: "/placeholder.svg?height=300&width=300",
+			image: testImageLink,
 			description: "Dominates in speed-based contests",
 		},
 	];
@@ -291,7 +292,7 @@ function PetShowcase({ scrollYProgress }) {
 							className="bg-indigo-50 rounded-lg overflow-hidden shadow-lg border border-indigo-100 hover:border-indigo-300 transition-all hover:shadow-indigo-100 hover:shadow-xl"
 						>
 							<Image
-								src={pet.image || "/placeholder.svg"}
+								src={pet.image || testImageLink}
 								alt={pet.name}
 								width={300}
 								height={300}

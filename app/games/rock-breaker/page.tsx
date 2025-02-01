@@ -13,7 +13,7 @@ const samplePetsForTrade = [
 	{
 		id: 1,
 		name: "Luna",
-		type: "Unicorn",
+		type: "Dragon",
 		level: 8,
 		strength: 15,
 		intelligence: 18,
@@ -23,7 +23,7 @@ const samplePetsForTrade = [
 	{
 		id: 2,
 		name: "Rex",
-		type: "T-Rex",
+		type: "Dragon",
 		level: 10,
 		strength: 20,
 		intelligence: 12,
@@ -33,7 +33,7 @@ const samplePetsForTrade = [
 	{
 		id: 3,
 		name: "Nessie",
-		type: "Sea Monster",
+		type: "Dragon",
 		level: 12,
 		strength: 18,
 		intelligence: 16,
@@ -241,7 +241,7 @@ function PetPanel({ pet }) {
 					<span className="text-5xl">{pet.icon}</span>
 				</div>
 				<h4 className="text-xl font-bold mb-1">{pet.name}</h4>
-				<p className="text-gray-600 dark:text-gray-400">{pet.type}</p>
+				<p className="text-gray-600 dark:text-gray-400">Dragon</p>
 			</div>
 
 			<div className="space-y-4">

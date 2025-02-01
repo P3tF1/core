@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Game } from "@/types";
+import { useRouter } from "next/navigation";
 
 interface GamePopupProps {
 	game: Game;
@@ -9,6 +10,7 @@ interface GamePopupProps {
 }
 
 export function GamePopup({ game, onClose }: GamePopupProps) {
+	const router = useRouter();
 	return (
 		<motion.div
 			initial={{ opacity: 0 }}
@@ -36,7 +38,12 @@ export function GamePopup({ game, onClose }: GamePopupProps) {
 				<p className="text-gray-600 mb-4">{game.strategy}</p>
 				<h4 className="font-semibold mb-2">Benefits:</h4>
 				<p className="text-gray-600 mb-4">{game.benefits}</p>
-				<Button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white">
+				<Button
+					className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
+					onClick={() => {
+						router.push(game.url)
+					}}
+				>
 					Play Now
 				</Button>
 			</motion.div>

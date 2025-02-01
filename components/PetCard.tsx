@@ -7,6 +7,7 @@ import type { Pet } from "@/types";
 import { AttributeBar } from "./AttributeBar";
 import { SellPetPopup } from "./SellPetPopup";
 import Image from "next/image";
+import {testImageLink} from "@/constants/gameData";
 
 interface PetCardProps {
 	pets: Pet[];
@@ -31,9 +32,9 @@ export function PetCard({
 
 	const getImageUrl = (pet: Pet) => {
 		console.log("IMAGE_URL", IMAGE_URL);
-		if (!IMAGE_URL) return "/placeholder.svg"; // Fallback image
+		if (!IMAGE_URL) return testImageLink; // Fallback image
 
-		return IMAGE_URL.replace("[Type]", encodeURIComponent(pet.type))
+		return IMAGE_URL.replace("[Type]", encodeURIComponent("Dragon"))
 			.replace("[Level]", encodeURIComponent(pet.level.toString()))
 			.replace("[Strength]", encodeURIComponent(pet.strength.toString()))
 			.replace(
@@ -141,7 +142,7 @@ export function PetCard({
 					<div>
 						<h3 className="text-2xl font-semibold">{pet.name}</h3>
 						<p className="text-gray-600 text-lg">
-							Level {pet.level} {pet.type}
+							Level {pet.level} Dragon
 						</p>
 					</div>
 					<div className="space-y-2">

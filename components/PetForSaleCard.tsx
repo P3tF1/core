@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import type { Pet } from "@/types";
 import Image from "next/image";
+import {testImageLink} from "@/constants/gameData";
 
 interface PetForSaleCardProps {
 	pet: Pet;
@@ -19,14 +20,14 @@ export function PetForSaleCard({ pet, onBuy, balance }: PetForSaleCardProps) {
 			<div className="flex items-center justify-between mb-2">
 				<h4 className="font-semibold text-lg text-indigo-600">{pet.name}</h4>
 				<Image
-					src={pet.image || "/placeholder.svg"}
+					src={pet.image || testImageLink}
 					alt={pet.name}
 					width={50}
 					height={50}
 					className="rounded-full"
 				/>
 			</div>
-			<p className="text-gray-600">Type: {pet.type}</p>
+			<p className="text-gray-600">Type: Dragon</p>
 			<p className="text-gray-600">Level: {pet.level}</p>
 			<div className="mt-2 space-y-1">
 				<p className="text-gray-600">
