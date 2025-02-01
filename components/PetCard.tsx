@@ -17,6 +17,20 @@ interface PetCardProps {
 
 export function PetCard({ pets, currentPetIndex, setCurrentPetIndex, setShowFeedPopup, onSellPet }: PetCardProps) {
   const [showSellPopup, setShowSellPopup] = useState(false)
+
+  if (pets.length === 0) {
+    return (
+      <motion.div
+        className="bg-white rounded-lg shadow-lg p-6 overflow-hidden"
+        whileHover={{ scale: 1.02 }}
+        transition={{ type: "spring", stiffness: 300 }}
+      >
+        <h2 className="text-2xl font-bold text-indigo-600 mb-4">Your Pets</h2>
+        <p className="text-gray-600 text-center">No pets available. Visit the Pet Market to get your first pet!</p>
+      </motion.div>
+    )
+  }
+
   const pet = pets[currentPetIndex]
 
   return (

@@ -43,11 +43,17 @@ export function PetMarket({ balance, setBalance, pets, setPets, onBuyPet }: PetM
           Buy New Pet (100 Tokens)
         </Button>
         <h3 className="text-xl font-semibold mt-6 mb-3 text-indigo-600">Pets for Sale</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {petsForSale.map((pet) => (
-            <PetForSaleCard key={pet.id} pet={pet} onBuy={() => handleBuyPet(pet.id)} balance={balance} />
-          ))}
-        </div>
+        {petsForSale.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {petsForSale.map((pet) => (
+              <PetForSaleCard key={pet.id} pet={pet} onBuy={() => handleBuyPet(pet.id)} balance={balance} />
+            ))}
+          </div>
+        ) : (
+          <p className="text-center text-gray-600">
+            No pets available for sale at the moment. Please check back later!
+          </p>
+        )}
       </div>
       {showBuyPetPopup && <BuyPetPopup onBuy={buyNewPet} onClose={() => setShowBuyPetPopup(false)} balance={balance} />}
     </div>

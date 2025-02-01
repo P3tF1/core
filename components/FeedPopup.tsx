@@ -45,7 +45,12 @@ export function FeedPopup({ pet, onFeed, onClose }: FeedPopupProps) {
             ))}
           </div>
         ) : (
-          <p className="text-center text-gray-600">No food available. Visit the shop to buy some!</p>
+          <div className="text-center">
+            <p className="text-gray-600 mb-4">No food available in your food bag.</p>
+            <Button className="bg-indigo-500 hover:bg-indigo-600 text-white" onClick={onClose}>
+              Go to Food Shop
+            </Button>
+          </div>
         )}
       </motion.div>
     </motion.div>

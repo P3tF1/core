@@ -24,6 +24,15 @@ export function FoodShop({ foodItems, balance, setBalance, onBuyFood, getTokenBa
   const [nftGenerator, setNftGenerator] = useState<ethers.Contract | null>(null)
   const [tokenContract, setTokenContract] = useState<ethers.Contract | null>(null)
 
+  if (foodItems.length === 0) {
+    return (
+      <div className="bg-indigo-50 rounded-lg p-4">
+        <h3 className="text-xl font-semibold mb-3 text-indigo-600">Food Shop</h3>
+        <p className="text-center text-gray-600">No food items available at the moment. Please check back later!</p>
+      </div>
+    )
+  }
+
   const getNftGenContract = async () => {
     if (!isConnected) {
       showToast.error("Wallet not connected")

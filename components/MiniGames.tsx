@@ -11,11 +11,15 @@ export function MiniGames({ setSelectedGame }: MiniGamesProps) {
   return (
     <div className="bg-white rounded-lg shadow-lg p-6">
       <h2 className="text-2xl font-bold mb-4 text-indigo-600">Mini-Games</h2>
-      <div className="space-y-4">
-        {games.map((game, index) => (
-          <GameItem key={index} game={game} setSelectedGame={setSelectedGame} />
-        ))}
-      </div>
+      {games.length > 0 ? (
+        <div className="space-y-4">
+          {games.map((game, index) => (
+            <GameItem key={index} game={game} setSelectedGame={setSelectedGame} />
+          ))}
+        </div>
+      ) : (
+        <p className="text-center text-gray-600">No mini-games available at the moment. Please check back later!</p>
+      )}
     </div>
   )
 }
