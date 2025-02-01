@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Trophy, Brain, Coins } from "lucide-react";
 import PathfinderGame from "./components/PathfinderGame";
 import { useSearchParams } from "next/navigation";
-import Navbar from "@/components/navbar";
+import { Navbar } from "@/components/Navbar";
 
 const samplePetsForTrade = [
 	{

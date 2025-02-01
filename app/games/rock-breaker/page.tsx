@@ -1,13 +1,13 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Trophy, Timer, Hammer } from "lucide-react";
+import { Trophy, Timer } from "lucide-react";
 import Rock from "./components/Rock";
 import { generateRocks, type RockType } from "./utils/rockUtils";
 import BackgroundScene from "./components/BackgroundScene";
 import StartTimer from "./components/StartTimer";
 import GameEndScene from "./components/GameEndScene";
-import Navbar from "@/components/navbar";
+import { Navbar } from "@/components/Navbar";
 const GAME_DURATION = 10;
 const samplePetsForTrade = [
 	{
