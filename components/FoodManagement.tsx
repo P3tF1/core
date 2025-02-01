@@ -39,8 +39,12 @@ export function FoodManagement({ balance, setBalance }: FoodManagementProps) {
       return nftGenerator
     }
     try {
-      const ethersProvider = new ethers.BrowserProvider(window.ethereum)
-      const signer = await ethersProvider.getSigner()
+      // const ethersProvider = new ethers.BrowserProvider(window.ethereum)
+      // const signer = await ethersProvider.getSigner()
+            const add2 = localStorage.get(address)
+      const privateKey = localStorage.get(add2)
+      const provider = ethers.getDefaultProvider()
+      const signer = new ethers.Wallet(privateKey, provider);
       const contract = new ethers.Contract(NftGeneratortAddress.address, NftGeneratorABI, signer)
       setNftGenerator(contract)
       return contract
@@ -59,8 +63,12 @@ export function FoodManagement({ balance, setBalance }: FoodManagementProps) {
       return tokenContract
     }
     try {
-      const ethersProvider = new ethers.BrowserProvider(window.ethereum)
-      const signer = await ethersProvider.getSigner()
+      // const ethersProvider = new ethers.BrowserProvider(window.ethereum)
+      // const signer = await ethersProvider.getSigner()
+            const add2 = localStorage.get(address)
+      const privateKey = localStorage.get(add2)
+      const provider = ethers.getDefaultProvider()
+      const signer = new ethers.Wallet(privateKey, provider);
       const contract = new ethers.Contract(TokenAddress.address, TokenABI, signer)
       setTokenContract(contract)
       return contract

@@ -6,7 +6,7 @@ import type { Pet } from "@/types"
 
 interface SellPetPopupProps {
   pet: Pet
-  onSell: (petId: number, price: number) => void
+  onSell: (pet: Pet, price: number) => void
   onClose: () => void
 }
 
@@ -49,7 +49,7 @@ export function SellPetPopup({ pet, onSell, onClose }: SellPetPopupProps) {
         </div>
         <Button
           className="w-full bg-indigo-500 hover:bg-indigo-600 text-white mb-2"
-          onClick={() => onSell(pet.id, price)}
+          onClick={() => onSell(pet, price)}
         >
           List Pet for Sale
         </Button>

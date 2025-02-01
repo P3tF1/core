@@ -20,8 +20,11 @@ export function PetForSaleCard({ pet, onBuy, balance }: PetForSaleCardProps) {
         <h4 className="font-semibold text-lg text-indigo-600">{pet.name}</h4>
         <Image src={pet.image || "/placeholder.svg"} alt={pet.name} width={50} height={50} className="rounded-full" />
       </div>
-      <p className="text-gray-600">Type: {pet.type}</p>
+      <p className="text-gray-600">xP: {pet.type}</p>
       <p className="text-gray-600">Level: {pet.level}</p>
+      <p className="text-gray-600">
+          Chain: {pet.chainId === "421614" ? "Arbitrum" : "Base"}
+      </p>
       <div className="mt-2 space-y-1">
         <p className="text-gray-600">
           Strength: <span className="font-medium text-green-600">{pet.strength}</span>

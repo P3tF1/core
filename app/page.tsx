@@ -28,6 +28,7 @@ export default function LandingPage() {
   useEffect(() => {
     if (isConnected) {
       const timeout = setTimeout(() => {
+        
         router.push("/dashboard");
       }, 3000);
 

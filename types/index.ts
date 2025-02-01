@@ -8,6 +8,9 @@ export interface Pet {
   strength: number
   intelligence: number
   image: string
+  chainId: string
+  price: number
+  listingId: number
 }
 
 export interface FoodItem {

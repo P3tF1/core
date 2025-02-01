@@ -12,7 +12,7 @@ interface PetCardProps {
   currentPetIndex: number
   setCurrentPetIndex: (index: number) => void
   setShowFeedPopup: (show: boolean) => void
-  onSellPet: (petId: number, price: number) => void
+  onSellPet: (pet: Pet, price: number) => void
 }
 
 export function PetCard({ pets, currentPetIndex, setCurrentPetIndex, setShowFeedPopup, onSellPet }: PetCardProps) {
