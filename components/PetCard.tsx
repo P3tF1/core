@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, RefreshCw } from "lucide-react";
@@ -29,8 +29,8 @@ export function PetCard({
 
 	const IMAGE_URL = process.env.NEXT_PUBLIC_IMAGE_URL;
 
-  const getImageUrl = (pet: Pet) => {
-    console.log("IMAGE_URL", IMAGE_URL);
+	const getImageUrl = (pet: Pet) => {
+		console.log("IMAGE_URL", IMAGE_URL);
 		if (!IMAGE_URL) return "/placeholder.svg"; // Fallback image
 
 		return IMAGE_URL.replace("[Type]", encodeURIComponent(pet.type))
@@ -122,8 +122,8 @@ export function PetCard({
 									onError={() => {
 										setIsImageLoading(false);
 										console.error("Failed to load image:", imageUrl);
-                  }}
-                  priority
+									}}
+									priority
 								/>
 								<Button
 									variant="outline"
