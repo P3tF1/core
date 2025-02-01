@@ -8,12 +8,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 interface PathfinderGameProps {
-	mindLevel: number;
+	level: number;
 	onGameComplete: (score: number) => void;
 }
 
 const PathfinderGame: React.FC<PathfinderGameProps> = ({
-	mindLevel,
+	level,
 	onGameComplete,
 }) => {
 	const [maze, setMaze] = useState<number[][]>([]);
@@ -48,11 +48,11 @@ const PathfinderGame: React.FC<PathfinderGameProps> = ({
 	}, []);
 
 	const initializeGame = () => {
-		const size = Math.min(5 + Math.floor(mindLevel / 10), 15);
+		const size = Math.min(5 + Math.floor(level / 10), 15);
 		let newMaze, path;
 
 		do {
-			newMaze = generateMaze(size, size, mindLevel);
+			newMaze = generateMaze(size, size, level);
 			path = findPath(newMaze, [0, 0], [size - 1, size - 1]);
 		} while (path.length === 0);
 
@@ -111,7 +111,7 @@ const PathfinderGame: React.FC<PathfinderGameProps> = ({
 
 			if (newRow === goalPosition[0] && newCol === goalPosition[1]) {
 				const optimalPath = findPath(maze, [0, 0], goalPosition);
-				const scoreMultiplier = Math.max(1, mindLevel / 10);
+				const scoreMultiplier = Math.max(1, level / 10);
 				const timeBonus = Math.max(0, 50 - elapsedTime) * 2;
 				const calculatedScore = Math.round(
 					(optimalPath.length / Math.max(1, moves + 1)) *
@@ -135,7 +135,7 @@ const PathfinderGame: React.FC<PathfinderGameProps> = ({
 					Pathfinder Minigame
 				</CardTitle>
 				<div className="flex justify-center gap-8 text-sm text-muted-foreground">
-					<div>Mind Level: {mindLevel}</div>
+					<div>Level: {level}</div>
 				</div>
 			</CardHeader>
 			<CardContent className="space-y-6">

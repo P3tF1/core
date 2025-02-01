@@ -15,7 +15,6 @@ const samplePetsForTrade = [
 		intelligence: 18,
 		icon: "🦄",
 		price: 500,
-		mindLevel: 5,
 	},
 	{
 		id: 2,
@@ -26,7 +25,6 @@ const samplePetsForTrade = [
 		intelligence: 12,
 		icon: "🦖",
 		price: 750,
-		mindLevel: 6,
 	},
 	{
 		id: 3,
@@ -37,7 +35,6 @@ const samplePetsForTrade = [
 		intelligence: 16,
 		icon: "🐉",
 		price: 1000,
-		mindLevel: 7,
 	},
 ];
 
@@ -74,7 +71,6 @@ export default function Home() {
 					level: 5,
 					strength: 10,
 					intelligence: 8,
-					mindLevel: 5,
 					icon: "🐉",
 				});
 			}
@@ -143,7 +139,7 @@ export default function Home() {
 					{/* Game Container */}
 					<div className="bg-white dark:bg-zinc-900 p-6 rounded-xl shadow-lg border border-purple-100 dark:border-purple-900">
 						<PathfinderGame
-							mindLevel={pet.level}
+							level={pet.level}
 							onGameComplete={handleGameComplete}
 						/>
 					</div>
