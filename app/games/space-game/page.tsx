@@ -387,7 +387,7 @@ export default function Home() {
                             </div>
                         </div>
                         {/* Game Container */}
-                        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900">
+                        <div className="flex flex-col items-center justify-center min-h-[75vh] bg-gray-900">
                             <h1 className="text-4xl font-bold mb-4 text-white">Space Shooter</h1>
                             <div className="relative">
                                 <canvas
@@ -419,7 +419,7 @@ export default function Home() {
                     </div>
                     {/* Game Info Panel */}
                     <aside
-                        className="lg:w-80 bg-white dark:bg-zinc-900 p-6 rounded-xl shadow-lg border border-purple-100 dark:border-purple-900 sticky top-6 self-start">
+                        className="lg:w-80 bg-white dark:bg-zinc-900 rounded-xl shadow-lg border border-purple-100 dark:border-purple-900 sticky top-6 self-start">
                         <PetPanel pet={pet}/>
                         {/*<h3 className="text-xl font-bold text-purple-600 dark:text-purple-400 mb-6">*/}
                         {/*    Game Stats*/}
