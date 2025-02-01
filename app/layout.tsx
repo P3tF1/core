@@ -32,7 +32,7 @@ export default async function RootLayout(
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Toaster position="top-center"/>
+        <Toaster position="botton-right"/>
         <ContextProvider cookies={cookies}>{children}</ContextProvider>
       </body>
     </html>

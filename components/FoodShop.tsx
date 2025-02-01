@@ -74,47 +74,48 @@ export function FoodShop({ foodItems, balance, setBalance, onBuyFood, getTokenBa
   }
 
   const buyFood = async (item: FoodItem, quantity: number) => {
-    if (balance >= item.price * quantity) {
-      await getTokenBalance()
-      const nftGenContract = await getNftGenContract()
-      if (nftGenContract == null) return
-
-      await showToast.promise(
-        (async () => {
-          const tx = await nftGenContract.buyPetFood(item.id, quantity)
-          await tx.wait()
-          return tx
-        })(),
+    const amount = BigInt(item.price) * BigInt(quantity);
+    console.log("Buying food", item, quantity, amount);
+    console.log("Balance", balance);
+    
+    if (BigInt(balance) < amount) {
+      showToast.error("Not enough tokens to buy this quantity.");
+      return;
+    }
+  
+    const nftGenContract = await getNftGenContract();
+    const tokenContract = await getTokenContract();
+  
+    if (!nftGenContract || !tokenContract) {
+      showToast.error("Failed to fetch contract.");
+      return;
+    }
+  
+    // Transfer tokens first
+    await showToast.promise(
+      tokenContract.transferTokens(TokenAddress.address, ethers.parseEther(amount.toString())).then(tx => tx.wait()),
+      {
+        loading: "Transferring tokens...",
+        success: "Tokens transferred successfully",
+        error: "Failed to transfer tokens",
+      }
+    );
+  
+    // Buy the food after payment
+    await Promise.all([
+      showToast.promise(
+        nftGenContract.buyPetFood(item.id, quantity).then(tx => tx.wait()),
         {
           loading: "Buying food...",
           success: "Food bought successfully",
           error: "Failed to buy food",
-        },
-      )
-
-      const tokenContract = await getTokenContract()
-      if (tokenContract == null) return
-      const amount = BigInt(item.price) * BigInt(quantity)
-
-      await showToast.promise(
-        (async () => {
-          const tx = await tokenContract.transferTokens(TokenAddress.address, amount)
-          await tx.wait()
-          return tx
-        })(),
-        {
-          loading: "Transferring tokens...",
-          success: "Tokens transferred successfully",
-          error: "Failed to transfer tokens",
-        },
-      )
-
-      setBalance(balance - item.price * quantity)
-      onBuyFood()
-    } else {
-      showToast.error("Not enough tokens to buy this quantity.")
-    }
-  }
+        }
+      ),
+      getTokenBalance()
+    ]);
+    onBuyFood();
+  };
+  
 
   return (
     <div className="bg-indigo-50 rounded-lg p-4">
