@@ -49,7 +49,7 @@ export function GamePopup({ game, pet, onClose }: GamePopupProps) {
             <p className="font-semibold">{pet.name}</p>
 
             <p className="text-sm text-gray-600">
-              Level {pet.level} {pet.type}
+              Level {pet.level} Dragon
             </p>
           </div>
         </div>

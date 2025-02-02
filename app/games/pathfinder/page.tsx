@@ -331,7 +331,7 @@ function PetPanel({ pet }) {
 				<div className="w-24 h-24 flex items-center justify-center bg-purple-100 dark:bg-purple-900/30 rounded-full mb-4">
 					<Image
 						src={getImageUrl(pet)|| testImageLink}
-						alt={`${pet.name} - Level ${pet.level} ${pet.type}`}
+						alt={`${pet.name} - Level ${pet.level} Dragon`}
 						className="object-cover rounded-full"
 						width={96}
 						height={48}

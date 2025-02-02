@@ -94,7 +94,7 @@ export function PetCard({ pets, onSellPet, onFeedPet, foodBag }: PetCardProps) {
 									<div className="relative aspect-square bg-indigo-950/80">
 										<Image
 											src={getImageUrl(pet)}
-											alt={`${pet.name} - Level ${pet.level} ${pet.type}`}
+											alt={`${pet.name} - Level ${pet.level} Dragon`}
 											fill
 											className="object-cover"
 											onLoadingComplete={() =>
