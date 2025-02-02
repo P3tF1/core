@@ -7,6 +7,8 @@ import { generateRocks, type RockType } from "./utils/rockUtils";
 import BackgroundScene from "./components/BackgroundScene";
 import StartTimer from "./components/StartTimer";
 import GameEndScene from "./components/GameEndScene";
+import Navbar from "@/components/navbar";
+import {Howler, Howl} from "howler"
 import { Navbar } from "@/components/Navbar";
 const GAME_DURATION = 10;
 const samplePetsForTrade = [
@@ -53,6 +55,11 @@ export default function RockBreakingGame() {
 	const [earnedPoints, setEarnedPoints] = useState(0);
 	const [pet, setPet] = useState<any>(null);
 	const [balance, setBalance] = useState(0);
+	const breakRock
+		= new Howl({
+		src: ["/rock-break.mp3"],
+		volume: 0.8,
+	});
 	useEffect(() => {
 		setPet(samplePetsForTrade[0]);
 		setAudioContext(
@@ -126,6 +133,7 @@ export default function RockBreakingGame() {
 	);
 
 	const handleRockClick = (id: number) => {
+		breakRock.play()
 		setRocks((prevRocks) => {
 			return prevRocks
 				.map((rock) => {

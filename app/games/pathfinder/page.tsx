@@ -47,6 +47,11 @@ export default function Home() {
 	const searchParams = useSearchParams();
 	const [balance, setBalance] = useState(0);
 
+	const rockBreak = new Howl({
+		src: ["/rock-break.mp3"],
+		volume: 0.8,
+	});
+
 	useEffect(() => {
 		const fetchPetDetails = async () => {
 			try {
