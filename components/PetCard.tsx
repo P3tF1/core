@@ -166,7 +166,7 @@ export function PetCard({ pets, onSellPet, onFeedPet, foodBag }: PetCardProps) {
 											className="h-full bg-gradient-to-r from-sky-500 to-blue-500 rounded-full"
 											initial={{ width: 0 }}
 											animate={{
-												width: `${(parseInt(pet.intelligence) / 100) * 100}%`,
+												width: `${((pet.intelligence) / 100) * 100}%`,
 											}}
 										/>
 									</div>

@@ -655,19 +655,25 @@ export default function Home() {
 				</div>
 
 				<div className="space-y-4">
-					<StatBar
-						label="Level"
-						value={petLevel}
-						max={20}
-						color="bg-green-500"
-					/>
-					<StatBar
-						label="Strength"
-						value={petStrength}
-						max={20}
-						color="bg-red-500"
-					/>
-				</div>
+			<StatBar
+					label="Level"
+					value={pet.level}
+					max={10}
+					color="bg-green-500"
+				/>
+				<StatBar
+					label="Intelligence"
+					value={pet.intelligence}
+					max={100}
+					color="bg-blue-500"
+				/>
+				<StatBar
+					label="Strength"
+					value={pet.strength}
+					max={100}
+					color="bg-red-500"
+				/>
+			</div>
 			</aside>
 		);
 	}

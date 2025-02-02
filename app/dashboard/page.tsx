@@ -288,35 +288,54 @@ export default function Dashboard() {
 
 
   const sellPet = async (pet: Pet, price: number) => {
-    const contract = await getNftmarketContract();
-    const ethersProvider = new ethers.BrowserProvider(window.ethereum);
-
-    const network = await ethersProvider.getNetwork();
-    const chainId = network.chainId;
-
-    if (contract == null) return;
-    // const contractAddress = await contract.getAddress();
-    const nftGeneratorContraact = await getNftGenContract();
-    if (nftGeneratorContraact == null) return;
-
-    const tx = await nftGeneratorContraact.setApprovalForAll(contract, true);
-    await tx.wait();
-    // const address = getAddress(contractAddress);
-    // const address = ethers.utils.getAddress(contractAddress);
-    await showToast.promise(
-      contract.listNFT(NftGeneratortAddress.address, pet.id, price),
-      {
-        loading: "Transferring tokens...",
-        success: "Tokens transferred successfully",
-        error: "Failed to transfer tokens",
+    try {
+      const contract = await getNftmarketContract();
+      const nftGeneratorContract = await getNftGenContract();
+      if (!contract || !nftGeneratorContract) {
+        showToast.error("Failed to fetch contracts");
+        return;
       }
-    );
-
-    const t11 = await nftGeneratorContraact.removeUserNFT(pet.id);
-    await t11.wait();
-
-    findPet();
+  
+      const ethersProvider = new ethers.BrowserProvider(window.ethereum);
+      const network = await ethersProvider.getNetwork();
+      const chainId = network.chainId;
+  
+      // Set approval for the marketplace contract to manage the NFT
+      const approvalTx = await nftGeneratorContract.setApprovalForAll(
+        await contract.getAddress(),
+        true
+      );
+      await approvalTx.wait();
+  
+      // List NFT for sale
+      await showToast.promise(
+        contract.listNFT(NftGeneratortAddress.address, pet.id, price).then(tx => tx.wait()),
+        {
+          loading: "Listing pet for sale...",
+          success: "Pet listed successfully",
+          error: "Failed to list pet",
+        }
+      );
+  
+      // Remove pet from user's inventory
+      await showToast.promise(
+        nftGeneratorContract.removeUserNFT(pet.id).then(tx => tx.wait()),
+        {
+          loading: "Updating inventory...",
+          success: "Pet removed from inventory",
+          error: "Failed to update inventory",
+        }
+      );
+  
+      // Refresh UI
+      await findPet();
+  
+    } catch (error) {
+      console.error("Error in sellPet:", error);
+      showToast.error("An unexpected error occurred");
+    }
   };
+  
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 text-gray-800">
@@ -341,10 +360,9 @@ export default function Dashboard() {
               >
                 <PetCard
                   pets={pets}
-                  currentPetIndex={currentPetIndex}
-                  setCurrentPetIndex={setCurrentPetIndex}
                   setShowFeedPopup={setShowFeedPopup}
                   onSellPet={sellPet}
+                  onFeedPet={feedPet}
                 />
               </motion.div>
             )}
