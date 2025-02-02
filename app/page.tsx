@@ -26,11 +26,13 @@ export default function LandingPage() {
 	const { isConnected } = useAppKitAccount();
 	const router = useRouter();
 
+
 	useEffect(() => {
 		if (isConnected) {
 			const timeout = setTimeout(() => {
 				router.push("/dashboard");
 			}, 3000);
+
 
 			return () => clearTimeout(timeout);
 		}

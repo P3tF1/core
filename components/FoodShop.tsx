@@ -11,6 +11,8 @@ import NftGeneratortAddress from "@/contract_address/nft_generator_address.json"
 import TokenABI from "@/contract_abis/p3tf1_coin_abi.json";
 import TokenAddress from "@/contract_address/p3tf1_coin_address.json";
 
+import {infura} from "@/contract_address/infura.json";
+
 interface FoodShopProps {
 	foodItems: FoodItem[];
 	balance: number;
@@ -56,8 +58,10 @@ export function FoodShop({
 			return nftGenerator;
 		}
 		try {
+
 			const ethersProvider = new ethers.BrowserProvider(window.ethereum);
 			const signer = await ethersProvider.getSigner();
+
 			const contract = new ethers.Contract(
 				NftGeneratortAddress.address,
 				NftGeneratorABI,
@@ -80,8 +84,10 @@ export function FoodShop({
 			return tokenContract;
 		}
 		try {
+
 			const ethersProvider = new ethers.BrowserProvider(window.ethereum);
 			const signer = await ethersProvider.getSigner();
+
 			const contract = new ethers.Contract(
 				TokenAddress.address,
 				TokenABI,

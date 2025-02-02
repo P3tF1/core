@@ -1,10 +1,16 @@
-import { useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import type { Pet } from "@/types";
 import { BuyPetPopup } from "./BuyPetPopup";
 import { PetForSaleCard } from "./PetForSaleCard";
 import { samplePetsForTrade } from "@/constants/gameData";
-
+import { ethers } from "ethers";
+import NftGeneratorABI from "@/contract_abis/nft_generator_abi.json";
+import NftMarketplaceABI from "@/contract_abis/nft_marketplace_abi.json";
+import NftMarketplaceAddress from "@/contract_address/nft_marketplace_address.json";
+import { useAppKitAccount } from "@reown/appkit/react";
+import NftGeneratortAddress from "@/contract_address/nft_generator_address.json";
+import { infura } from "@/contract_address/infura.json";
 export function PetMarket({
 	balance,
 	setBalance,
@@ -14,23 +20,159 @@ export function PetMarket({
 	onBuyDefaultPet,
 }) {
 	const [showBuyPetPopup, setShowBuyPetPopup] = useState(false);
-	const [petsForSale, setPetsForSale] = useState(samplePetsForTrade);
+
+	const [petsForSale, setPetsForSale] = useState<Pet[]>([]); // Initialize as empty array
+	const { address } = useAppKitAccount();
+	useEffect(() => {
+		const initializeEthers = async () => {
+			if (window.ethereum) {
+				const ethersProvider = new ethers.BrowserProvider(window.ethereum);
+				const signer = await ethersProvider.getSigner();
+				// const add2 = localStorage.getItem(address!);
+				// const privateKey = localStorage.getItem(add2!);
+				// // const infuraProjectId = process.env.INFURA_PROJECT_ID;
+				// console.log(infura);
+				// const provider = new ethers.JsonRpcProvider(infura);
+				// const signer = new ethers.Wallet(privateKey!, provider);
+				// const add2 = localStorage.getItem(address);
+				// const privateKey = localStorage.getItem(add2);
+				// const provider = ethers.getDefaultProvider();
+				// const signer = new ethers.Wallet(privateKey, provider);
+				const contract = new ethers.Contract(
+					NftMarketplaceAddress.address,
+					NftMarketplaceABI,
+					signer
+				);
+				const chainId = await provider
+					.getNetwork()
+					.then((network) => network.chainId);
+
+				const nft_contract = new ethers.Contract(
+					NftGeneratortAddress.address,
+					NftGeneratorABI,
+					signer
+				);
+				getAllListedNFTs(contract, nft_contract, chainId);
+			} else {
+				console.error("Ethereum provider (e.g., MetaMask) not found.");
+			}
+		};
+
+		initializeEthers();
+	}, []);
+
+	const getAllListedNFTs = useCallback(
+		async (contract, nft_contract, chainId) => {
+			try {
+				const listedNFTs = await contract.getAllListedNFTs();
+				const nftss = []; // Array to store NFT details
+
+				for (let i = 0; i < listedNFTs.length; i++) {
+					const listedNFT = listedNFTs[i];
+					const tokenId = listedNFT.tokenId;
+
+					try {
+						const nftDetails = await nft_contract.getNFTDetails(tokenId);
+						const pet = {
+							id: tokenId, // Assuming tokenId is part of nftDetails
+							name: nftDetails.name, // Assuming name is part of nftDetails
+							type: nftDetails.xP, // Assuming type is part of nftDetails
+							level: nftDetails.level, // Assuming level is part of nftDetails
+							strength: nftDetails.strength, // Assuming strength is part of nftDetails
+							intelligence: nftDetails.intelligence, // Assuming intelligence is part of nftDetails
+							image: nftDetails.imageLink, // Assuming image is part of nftDetails
+							chainId: chainId, // Assuming chainId is part of nftDetails
+							price: listedNFT.price, // Use the price from listedNFT
+							listingId: listedNFT.listingId,
+						};
+
+						nftss.push(pet);
+					} catch (error) {
+						console.error(
+							`Error fetching details for tokenId ${tokenId}:`,
+							error
+						);
+					}
+				}
+				console.log(nftss);
+				setPetsForSale(nftss);
+				console.log("Listed NFTs:", listedNFTs);
+			} catch (error) {
+				console.error("Error fetching listed NFTs:", error);
+			}
+		},
+		[]
+	);
 
 	const buyNewPet = async () => {
 		if (balance >= 100) {
 			setShowBuyPetPopup(false);
-			await onBuyDefaultPet();
+
+			try {
+				await onBuyDefaultPet();
+			} catch (error) {
+				console.error("Error buying default pet:", error);
+			}
 		}
 	};
 
-	const handleBuyPet = async (petId: number) => {
-		const petToBuy = petsForSale.find((pet) => pet.id === petId);
-		if (petToBuy && balance >= petToBuy.price) {
-			setBalance(balance - petToBuy.price);
-			setPets([...pets, petToBuy]);
-			setPetsForSale(petsForSale.filter((pet) => pet.id !== petId));
-			await onBuyPet();
-		}
+	const handleBuyPet = async (pet: Pet) => {
+		const ethersProvider = new ethers.BrowserProvider(window.ethereum);
+		const signer = await ethersProvider.getSigner();
+		// const add2 = localStorage.getItem(address!);
+		// const privateKey = localStorage.getItem(add2!);
+		// // const infuraProjectId = process.env.INFURA_PROJECT_ID;
+		// console.log(infura);
+		// const provider = new ethers.JsonRpcProvider(infura);
+		// const signer = new ethers.Wallet(privateKey!, provider);
+		// const add2 = localStorage.getItem(address);
+		// const privateKey = localStorage.getItem(add2);
+		// const provider = ethers.getDefaultProvider();
+		// const signer = new ethers.Wallet(privateKey, provider);
+		const nftGeneratorContraact = new ethers.Contract(
+			NftGeneratortAddress.address,
+			NftGeneratorABI,
+			signer
+		);
+
+		const contract = new ethers.Contract(
+			NftMarketplaceAddress.address,
+			NftMarketplaceABI,
+			signer
+		);
+		if (nftGeneratorContraact == null) return;
+		const nftDetails = await nftGeneratorContraact.getNFTDetails(pet.id);
+		console.log("NFT Details:", nftDetails);
+
+		// Mint a new NFT with the same attributes
+		const tx111 = await nftGeneratorContraact.mintNFT(
+			nftDetails.name,
+			nftDetails.level,
+			nftDetails.strength,
+			nftDetails.intelligence,
+			nftDetails.imageLink
+		);
+
+		// const t11 = await nftGeneratorContraact.removeUserNFT(pet.id)
+
+		const t112 = await contract.removeUserNFT(pet.listingId);
+		// await t11.wait();
+		await t112.wait();
+
+		const receipt = await tx111.wait();
+		console.log("NFT Minted Successfully:", receipt);
+		// const petToBuy = petsForSale.find((pet) => pet.id === petId);
+		// if (petToBuy && balance >= petToBuy.price) {
+		//   setBalance(balance - petToBuy.price);
+		//   setPets([...pets, petToBuy]);
+		//   setPetsForSale(petsForSale.filter((pet) => pet.id !== petId));
+		//   try {
+		//     await onBuyPet();
+		//   } catch (error) {
+		//     console.error("Error buying pet:", error);
+		//   }
+		// }
+
 	};
 
 	return (
@@ -52,7 +194,9 @@ export function PetMarket({
 							<PetForSaleCard
 								key={pet.id}
 								pet={pet}
-								onBuy={() => handleBuyPet(pet.id)}
+
+								onBuy={() => handleBuyPet(pet)}
+
 								balance={balance}
 							/>
 						))}

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAppKitProvider, useAppKitAccount } from "@reown/appkit/react";
-import { ethers } from "ethers";
+import { ethers, getAddress } from "ethers";
 import { showToast } from "@/utils/toast";
 import { Navbar } from "@/components/Navbar";
 import { Sidenav } from "@/components/Sidenav";
@@ -22,7 +22,10 @@ import NftMarketplaceAddress from "@/contract_address/nft_marketplace_address.js
 import NftGeneratortAddress from "@/contract_address/nft_generator_address.json";
 import TokenAddress from "@/contract_address/p3tf1_coin_address.json";
 import { testImageLink } from "@/constants/gameData";
+import { infura } from "@/contract_address/infura.json"
+// require('dotenv').config();
 
+// const infuraProjectId = process.env.INFURA_PROJECT_ID;
 export default function Dashboard() {
 	const [balance, setBalance] = useState(0);
 	const [selectedGame, setSelectedGame] = useState<Game | null>(null);
@@ -31,6 +34,7 @@ export default function Dashboard() {
 	const [pets, setPets] = useState<Pet[]>([]);
 	const [currentPetIndex, setCurrentPetIndex] = useState(0);
 	const [selectedPet, setSelectedPet] = useState(pets[0]);
+
 	const [showFeedPopup, setShowFeedPopup] = useState(false);
 	const [activeSection, setActiveSection] = useState("pets");
 	const [nftGenerator, setNftGenerator] = useState<ethers.Contract | null>(
@@ -51,6 +55,8 @@ export default function Dashboard() {
 			getTokenBalance();
 			findPet();
 			fetchUserPetFoods();
+
+			generateKeyPair();
 		}
 	}, [isConnected]);
 
@@ -84,6 +90,7 @@ export default function Dashboard() {
 		try {
 			const ethersProvider = new ethers.BrowserProvider(window.ethereum);
 			const signer = await ethersProvider.getSigner();
+
 			const contract = new ethers.Contract(
 				TokenAddress.address,
 				TokenABI,
@@ -108,6 +115,7 @@ export default function Dashboard() {
 		try {
 			const ethersProvider = new ethers.BrowserProvider(window.ethereum);
 			const signer = await ethersProvider.getSigner();
+
 			const contract = new ethers.Contract(
 				NftGeneratortAddress.address,
 				NftGeneratorABI,
@@ -132,6 +140,7 @@ export default function Dashboard() {
 		try {
 			const ethersProvider = new ethers.BrowserProvider(window.ethereum);
 			const signer = await ethersProvider.getSigner();
+
 			const contract = new ethers.Contract(
 				NftMarketplaceAddress.address,
 				NftMarketplaceABI,
@@ -157,6 +166,9 @@ export default function Dashboard() {
 
 	const buyTokens = async () => {
 		const tokenContract = await getTokenContract();
+		const ethersProvider = new ethers.BrowserProvider(window.ethereum);
+		const signer = await ethersProvider.getSigner();
+
 		await showToast.promise(
 			(async () => {
 				const amount = ethers.parseEther((tokensToBuy * 0.000001).toString());
@@ -173,23 +185,42 @@ export default function Dashboard() {
 				error: "Failed to buy tokens",
 			}
 		);
+
 		setShowBuyTokens(false);
 		setTokensToBuy(0);
 		await getTokenBalance();
 	};
 
+	function generateKeyPair() {
+		// Create a new random wallet
+		const wallet = ethers.Wallet.createRandom();
+
+		// Extract private key, public key, and address
+		const privateKey = wallet.privateKey;
+		const publicKey = wallet.publicKey;
+		const address1 = wallet.address;
+
+		// Store the private key in localStorage, mapped to the public key
+		localStorage.setItem(address1, privateKey);
+		if (address) localStorage.setItem(address, address1);
+	}
+
+
 	const feedPet = async (foodItem, pet) => {
 		const contract = await getNftGenContract();
 		if (contract == null) return;
     setShowFeedPopup(false);
+
 		await showToast.promise(contract.feedPet(pet.id, foodItem.id), {
 			loading: "Feeding pet...",
 			success: "Pet fed successfully",
 			error: "Failed to feed pet",
 		});
+
 		setTimeout(async() => {
       await findPet();
     }, 4000);
+
 	};
 
 	const findPet = async () => {
@@ -257,17 +288,35 @@ export default function Dashboard() {
 		}
 	};
 
-	const sellPet = async (petId: number, price: number) => {
+
+	const sellPet = async (pet: Pet, price: number) => {
 		const contract = await getNftmarketContract();
+		const ethersProvider = new ethers.BrowserProvider(window.ethereum);
+
+		const network = await ethersProvider.getNetwork();
+		const chainId = network.chainId;
+
 		if (contract == null) return;
+		// const contractAddress = await contract.getAddress();
+		const nftGeneratorContraact = await getNftGenContract();
+		if (nftGeneratorContraact == null) return;
+
+		const tx = await nftGeneratorContraact.setApprovalForAll(contract, true);
+		await tx.wait();
+		// const address = getAddress(contractAddress);
+		// const address = ethers.utils.getAddress(contractAddress);
 		await showToast.promise(
-			contract.listPetForSale(petId, ethers.parseEther(price.toString())),
+			contract.listNFT(NftGeneratortAddress.address, pet.id, price),
 			{
-				loading: "Listing pet for sale...",
-				success: "Pet listed for sale successfully",
-				error: "Failed to list pet for sale",
+				loading: "Transferring tokens...",
+				success: "Tokens transferred successfully",
+				error: "Failed to transfer tokens",
 			}
 		);
+
+		const t11 = await nftGeneratorContraact.removeUserNFT(pet.id);
+		await t11.wait();
+
 		findPet();
 	};
 

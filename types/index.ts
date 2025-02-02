@@ -1,13 +1,18 @@
 import type React from "react";
 
 export interface Pet {
-	id: number;
-	name: string;
-	type: string;
-	level: number;
-	strength: number;
-	intelligence: number;
-	image: string;
+
+  id: number
+  name: string
+  type: string
+  level: number
+  strength: number
+  intelligence: number
+  image: string
+  chainId: string
+  price: number
+  listingId: number
+
 }
 
 export interface FoodItem {

@@ -1,5 +1,14 @@
 "use client";
 
+
+interface PetCardProps {
+  pets: Pet[]
+  currentPetIndex: number
+  setCurrentPetIndex: (index: number) => void
+  setShowFeedPopup: (show: boolean) => void
+  onSellPet: (pet: Pet, price: number) => void
+}
+
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { RefreshCw } from "lucide-react";

@@ -25,6 +25,7 @@ export function PetForSaleCard({ pet, onBuy, balance }: PetForSaleCardProps) {
 	};
 	const imageUrl = getImageUrl(pet);
 
+
 	return (
 		<motion.div
 			className="bg-white p-4 rounded-lg shadow-md border border-indigo-100"
@@ -41,8 +42,11 @@ export function PetForSaleCard({ pet, onBuy, balance }: PetForSaleCardProps) {
 					className="rounded-full"
 				/>
 			</div>
-			<p className="text-gray-600">Type: {pet.type}</p>
+			<p className="text-gray-600">xP: {pet.type}</p>
 			<p className="text-gray-600">Level: {pet.level}</p>
+       <p className="text-gray-600">
+          Chain: {pet.chainId === "421614" ? "Arbitrum" : "Base"}
+      </p>
 			<div className="mt-2 space-y-1">
 				<p className="text-gray-600">
 					Strength:{" "}
