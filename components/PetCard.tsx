@@ -1,32 +1,35 @@
 "use client";
 
-
-interface PetCardProps {
-  pets: Pet[]
-  currentPetIndex: number
-  setCurrentPetIndex: (index: number) => void
-  setShowFeedPopup: (show: boolean) => void
-  onSellPet: (pet: Pet, price: number) => void
-}
-
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SellPetPopup } from "./SellPetPopup";
+import { FeedPopup } from "./FeedPopup";
 import Image from "next/image";
 import { testImageLink } from "@/constants/gameData";
 import type { Pet } from "@/types";
 
-export function PetCard({
-	pets,
-	currentPetIndex,
-	setShowFeedPopup,
-	onSellPet,
-}: PetCardProps) {
-	const [showSellPopup, setShowSellPopup] = useState(false);
-	const [isImageLoading, setIsImageLoading] = useState(true);
-	const [imageKey, setImageKey] = useState(0);
+interface PetCardProps {
+	pets: Pet[];
+	currentPetIndex: number;
+	setCurrentPetIndex: (index: number) => void;
+	onSellPet: (pet: Pet, price: number) => void;
+	onFeedPet: (foodItem: any, pet: Pet) => void;
+	foodBag: any[];
+}
+
+export function PetCard({ pets, onSellPet, onFeedPet, foodBag }: PetCardProps) {
+	const [selectedPetForSale, setSelectedPetForSale] = useState<Pet | null>(
+		null
+	);
+	const [selectedPetForFeed, setSelectedPetForFeed] = useState<Pet | null>(
+		null
+	);
+	const [imageKeys, setImageKeys] = useState<{ [key: string]: number }>({});
+	const [isImageLoading, setIsImageLoading] = useState<{
+		[key: string]: boolean;
+	}>({});
 
 	const IMAGE_URL = process.env.NEXT_PUBLIC_IMAGE_URL;
 
@@ -77,13 +80,13 @@ export function PetCard({
 						<div className="relative">
 							<AnimatePresence mode="wait">
 								<motion.div
-									key={`${pet.id}-${imageKey}`}
+									key={`${pet.id}-${imageKeys[pet.id] || 0}`}
 									initial={{ opacity: 0 }}
 									animate={{ opacity: 1 }}
 									exit={{ opacity: 0 }}
 									className="relative"
 								>
-									{isImageLoading && (
+									{isImageLoading[pet.id] && (
 										<div className="absolute inset-0 flex items-center justify-center bg-indigo-950/80">
 											<div className="w-8 h-8 border-3 border-white border-t-transparent rounded-full animate-spin" />
 										</div>
@@ -94,8 +97,18 @@ export function PetCard({
 											alt={`${pet.name} - Level ${pet.level} ${pet.type}`}
 											fill
 											className="object-cover"
-											onLoadingComplete={() => setIsImageLoading(false)}
-											onError={() => setIsImageLoading(false)}
+											onLoadingComplete={() =>
+												setIsImageLoading((prev) => ({
+													...prev,
+													[pet.id]: false,
+												}))
+											}
+											onError={() =>
+												setIsImageLoading((prev) => ({
+													...prev,
+													[pet.id]: false,
+												}))
+											}
 											priority
 										/>
 									</div>
@@ -103,7 +116,16 @@ export function PetCard({
 										variant="ghost"
 										size="icon"
 										className="absolute top-2 right-2 bg-black/50 hover:bg-black/60 text-white"
-										onClick={() => setImageKey((prev) => prev + 1)}
+										onClick={() => {
+											setImageKeys((prev) => ({
+												...prev,
+												[pet.id]: (prev[pet.id] || 0) + 1,
+											}));
+											setIsImageLoading((prev) => ({
+												...prev,
+												[pet.id]: true,
+											}));
+										}}
 									>
 										<RefreshCw className="h-4 w-4" />
 									</Button>
@@ -154,13 +176,13 @@ export function PetCard({
 							<div className="grid grid-cols-2 gap-2">
 								<button
 									className="w-full py-2 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg transition-all"
-									onClick={() => setShowFeedPopup(true)}
+									onClick={() => setSelectedPetForFeed(pet)}
 								>
 									Feed Pet
 								</button>
 								<button
 									className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-all"
-									onClick={() => setShowSellPopup(true)}
+									onClick={() => setSelectedPetForSale(pet)}
 								>
 									Sell Pet
 								</button>
@@ -170,11 +192,20 @@ export function PetCard({
 				))}
 			</div>
 
-			{showSellPopup && (
+			{selectedPetForSale && (
 				<SellPetPopup
-					pet={pets[currentPetIndex]}
+					pet={selectedPetForSale}
 					onSell={onSellPet}
-					onClose={() => setShowSellPopup(false)}
+					onClose={() => setSelectedPetForSale(null)}
+				/>
+			)}
+
+			{selectedPetForFeed && (
+				<FeedPopup
+					pet={selectedPetForFeed}
+					foodBag={foodBag}
+					onFeed={onFeedPet}
+					onClose={() => setSelectedPetForFeed(null)}
 				/>
 			)}
 		</div>
