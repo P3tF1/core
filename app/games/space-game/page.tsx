@@ -6,6 +6,7 @@ import {useState, useRef, useEffect} from "react"
 import {useGameLoop} from "./hooks/useGameLoop"
 import type {GameState, Spaceship, Meteorite, Laser, GameConfig} from "./types"
 import Navbar from "@/components/navbar";
+import {Howler, Howl} from "howler"
 
 const CANVAS_WIDTH = 800
 const CANVAS_HEIGHT = 600
@@ -15,7 +16,7 @@ const METEORITE_SIZE = 40
 const LASER_WIDTH = 3
 const LASER_HEIGHT = 15
 const INITIAL_COUNTDOWN = 3
-const SPACESHIP_SPEED = 5
+const SPACESHIP_SPEED = 6
 
 const ASTEROID_COLORS = ["#8B4513", "#A0522D", "#D2691E", "#CD853F", "#DEB887"]
 
@@ -56,11 +57,11 @@ const samplePetsForTrade = [
 const gameConfig: GameConfig = {
     meteoriteSpawnRate: 0.02,
     meteoriteSpeedBase: 1,
-    meteoriteSpeedVariance: 0.5,
+    meteoriteSpeedVariance: 0.35,
     meteoriteHitsMean: 3,
     meteoriteHitsStdDev: 1,
     laserSpeed: 5,
-    laserFireRate: 0.1,
+    laserFireRate: 0.06,
 }
 
 // Helper function for normal distribution
@@ -72,6 +73,15 @@ function normalDistribution(mean: number, stdDev: number): number {
 }
 
 export default function Home() {
+    const laserSound = new Howl({
+        src: ["/laser.mp3"],
+        volume: 0.8,
+    });
+
+    const rockBreak = new Howl({
+        src: ["/rock-break.mp3"],
+        volume: 0.8,
+    });
     const [pet, setPet] = useState<any>(null);
     const [balance, setBalance] = useState(0);
     useEffect(() => {
@@ -233,6 +243,7 @@ export default function Home() {
                     )
 
                     if (hitLasers.length > 0) {
+                        rockBreak.play();
                         setLasers((prev) => prev.filter((laser) => !hitLasers.includes(laser)))
                         const newHits = Math.max(0, meteorite.hits - gameState.playerStrength * hitLasers.length)
                         if (newHits === 0) {
@@ -272,6 +283,8 @@ export default function Home() {
             y: spaceship.y,
             speed: gameConfig.laserSpeed,
         }
+        console.log("Laser fired! 🚀");
+        laserSound.play();
         setLasers((prev) => [...prev, newLaser])
     }
 
@@ -364,19 +377,19 @@ export default function Home() {
                                         <div className="text-sm text-purple-600 dark:text-purple-400 font-medium">
                                             Points
                                         </div>
-                                        <div className="text-2xl font-bold">100</div>
+                                        <div className="text-2xl font-bold">{gameState.score}</div>
                                     </div>
                                 </div>
-                                <div
-                                    className="flex items-center gap-3 bg-purple-50 dark:bg-purple-900/30 px-4 py-2 rounded-lg">
-                                    <Timer className="w-5 h-5 text-purple-600 dark:text-purple-400"/>
-                                    <div>
-                                        <div className="text-sm text-purple-600 dark:text-purple-400 font-medium">
-                                            Time
-                                        </div>
-                                        <div className="text-2xl font-bold">20s</div>
-                                    </div>
-                                </div>
+                                {/*<div*/}
+                                {/*    className="flex items-center gap-3 bg-purple-50 dark:bg-purple-900/30 px-4 py-2 rounded-lg">*/}
+                                {/*    <Timer className="w-5 h-5 text-purple-600 dark:text-purple-400"/>*/}
+                                {/*    <div>*/}
+                                {/*        <div className="text-sm text-purple-600 dark:text-purple-400 font-medium">*/}
+                                {/*            Time*/}
+                                {/*        </div>*/}
+                                {/*        <div className="text-2xl font-bold">20s</div>*/}
+                                {/*    </div>*/}
+                                {/*</div>*/}
                                 {false && (
                                     <div
                                         className="absolute top-4 right-4 animate-bounce bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400 px-4 py-2 rounded-lg flex items-center gap-2">
