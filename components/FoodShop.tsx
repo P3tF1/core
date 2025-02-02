@@ -11,7 +11,7 @@ import NftGeneratortAddress from "@/contract_address/nft_generator_address.json"
 import TokenABI from "@/contract_abis/p3tf1_coin_abi.json";
 import TokenAddress from "@/contract_address/p3tf1_coin_address.json";
 
-import {infura} from "@/contract_address/infura.json";
+import { infura } from "@/contract_address/infura.json";
 
 interface FoodShopProps {
 	foodItems: FoodItem[];
@@ -35,11 +35,49 @@ export function FoodShop({
 	const [tokenContract, setTokenContract] = useState<ethers.Contract | null>(
 		null
 	);
+	const handleFoodShopClick = async () => {
+		console.log("clicked");
+		const provider = new ethers.BrowserProvider(window.ethereum); // For MetaMask
+		const signer = await provider.getSigner();
 
+		// Create a contract instance connected to the signer
+		const contract = await new ethers.Contract(
+			NftGeneratortAddress.address,
+			NftGeneratorABI,
+			signer
+		);
+
+		// Function to add pet food
+		async function addPetFood(name, strengthBoost, intelligenceBoost, price) {
+			try {
+				// Call the smart contract function
+				const tx = await contract.addPetFood(
+					name,
+					strengthBoost,
+					intelligenceBoost,
+					price
+				);
+				console.log("Transaction sent:", tx.hash);
+
+				// Wait for the transaction to be mined
+				await tx.wait();
+				console.log("Transaction mined:", tx.hash);
+			} catch (error) {
+				console.error("Error adding pet food:", error);
+			}
+		}
+		// await addPetFood("Apple", 5, 5, 10);
+		await addPetFood("Banana", 10, 10, 20);
+		await addPetFood("Orange", 15, 15, 30);
+		await addPetFood("Mango", 20, 20, 40);
+	};
 	if (foodItems.length === 0) {
 		return (
 			<div className="bg-indigo-50 rounded-lg p-4">
-				<h3 className="text-xl font-semibold mb-3 text-indigo-600">
+				<h3
+					className="text-xl font-semibold mb-3 text-indigo-600"
+					onClick={handleFoodShopClick}
+				>
 					Food Shop
 				</h3>
 				<p className="text-center text-gray-600">
@@ -58,7 +96,6 @@ export function FoodShop({
 			return nftGenerator;
 		}
 		try {
-
 			const ethersProvider = new ethers.BrowserProvider(window.ethereum);
 			const signer = await ethersProvider.getSigner();
 
@@ -84,7 +121,6 @@ export function FoodShop({
 			return tokenContract;
 		}
 		try {
-
 			const ethersProvider = new ethers.BrowserProvider(window.ethereum);
 			const signer = await ethersProvider.getSigner();
 
@@ -148,10 +184,48 @@ export function FoodShop({
 		]);
 		onBuyFood();
 	};
+	// const handleFoodShopClick = async () => {
+	// 	console.log("clicked");
+	// 	const provider = new ethers.BrowserProvider(window.ethereum); // For MetaMask
+	// 	const signer = await provider.getSigner();
+
+	// 	// Create a contract instance connected to the signer
+	// 	const contract = await new ethers.Contract(
+	// 		NftGeneratortAddress.address,
+	// 		NftGeneratorABI,
+	// 		signer
+	// 	);
+
+	// 	// Function to add pet food
+	// 	async function addPetFood(name, strengthBoost, intelligenceBoost, price) {
+	// 		try {
+	// 			// Call the smart contract function
+	// 			const tx = await contract.addPetFood(
+	// 				name,
+	// 				strengthBoost,
+	// 				intelligenceBoost,
+	// 				price
+	// 			);
+	// 			console.log("Transaction sent:", tx.hash);
+
+	// 			// Wait for the transaction to be mined
+	// 			await tx.wait();
+	// 			console.log("Transaction mined:", tx.hash);
+	// 		} catch (error) {
+	// 			console.error("Error adding pet food:", error);
+	// 		}
+	// 	}
+	// 	await addPetFood("Apple", 5, 5, 10);
+	// };
 
 	return (
 		<div className="bg-indigo-50 rounded-lg p-4">
-			<h3 className="text-xl font-semibold mb-3 text-indigo-600">Food Shop</h3>
+			<h3
+				className="text-xl font-semibold mb-3 text-indigo-600"
+				// onClick={handleFoodShopClick}
+			>
+				Food Shop
+			</h3>
 			<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 				{foodItems.map((item) => (
 					<FoodItem
