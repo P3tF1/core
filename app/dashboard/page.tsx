@@ -247,7 +247,7 @@ export default function Dashboard() {
 		return finalPetsArray;
 	};
 
-	const buyDefaultPet = async () => {
+	const buyDefaultPet = async (petName) => {
 		try {
 			const nftGenContract = await getNftGenContract();
 			const tokenContract = await getTokenContract();
@@ -272,7 +272,7 @@ export default function Dashboard() {
 
 			await Promise.all([
 				showToast.promise(
-					nftGenContract.mintNFT("Default Pet", 1, 1, 1, testImageLink),
+					nftGenContract.mintNFT(petName, 1, 1, 1, testImageLink),
 					{
 						loading: "Buying pet...",
 						success: "Pet bought successfully",
