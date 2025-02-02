@@ -1,17 +1,20 @@
-import { useState } from "react"
-import { motion } from "framer-motion"
-import { X, Minus, Plus } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import type { Pet } from "@/types"
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { X, Minus, Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import type { Pet } from "@/types";
 
 interface SellPetPopupProps {
+
   pet: Pet
-  onSell: (petId: number, price: number) => void
+  onSell: (pet: Pet, price: number) => void
   onClose: () => void
+
 }
 
 export function SellPetPopup({ pet, onSell, onClose }: SellPetPopupProps) {
-  const [price, setPrice] = useState(100)
+	const [price, setPrice] = useState(100);
+
 
   return (
     <motion.div
@@ -49,7 +52,7 @@ export function SellPetPopup({ pet, onSell, onClose }: SellPetPopupProps) {
         </div>
         <Button
           className="w-full bg-indigo-500 hover:bg-indigo-600 text-white mb-2"
-          onClick={() => onSell(pet.id, price)}
+          onClick={() => onSell(pet, price)}
         >
           List Pet for Sale
         </Button>
@@ -59,5 +62,5 @@ export function SellPetPopup({ pet, onSell, onClose }: SellPetPopupProps) {
       </motion.div>
     </motion.div>
   )
-}
 
+}

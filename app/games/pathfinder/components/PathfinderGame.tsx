@@ -139,7 +139,6 @@ const PathfinderGame: React.FC<PathfinderGameProps> = ({
 				</div>
 			</CardHeader>
 			<CardContent className="space-y-6">
-				{/* Maze Grid */}
 				<div className="flex justify-center">
 					<div className="border-2 border-purple-500 rounded-lg overflow-hidden p-1 bg-purple-50 dark:bg-purple-950">
 						{maze.map((row, rowIndex) => (
@@ -165,7 +164,6 @@ const PathfinderGame: React.FC<PathfinderGameProps> = ({
 					</div>
 				</div>
 
-				{/* Controls */}
 				<div className="flex justify-center gap-2">
 					<Button
 						variant="outline"
