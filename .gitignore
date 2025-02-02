@@ -12,7 +12,7 @@
 
 # testing
 /coverage
-
+/contract_address/infura.json
 # next.js
 /.next/
 /out/
