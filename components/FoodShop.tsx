@@ -10,7 +10,9 @@ import NftGeneratorABI from "@/contract_abis/nft_generator_abi.json";
 import NftGeneratortAddress from "@/contract_address/nft_generator_address.json";
 import TokenABI from "@/contract_abis/p3tf1_coin_abi.json";
 import TokenAddress from "@/contract_address/p3tf1_coin_address.json";
+
 import {infura} from "@/contract_address/infura.json";
+
 interface FoodShopProps {
 	foodItems: FoodItem[];
 	balance: number;
@@ -56,18 +58,10 @@ export function FoodShop({
 			return nftGenerator;
 		}
 		try {
-			// const ethersProvider = new ethers.BrowserProvider(window.ethereum)
-			// const signer = await ethersProvider.getSigner()
-						const add2 = localStorage.getItem(address!);
-						const privateKey = localStorage.getItem(add2!);
-						// const infuraProjectId = process.env.INFURA_PROJECT_ID;
-						console.log(infura);
-						const provider = new ethers.JsonRpcProvider(infura);
-						const signer = new ethers.Wallet(privateKey!, provider);
-			// const add2 = localStorage.getItem(address);
-			// const privateKey = localStorage.getItem(add2);
-			// const provider = ethers.getDefaultProvider();
-			// const signer = new ethers.Wallet(privateKey, provider);
+
+			const ethersProvider = new ethers.BrowserProvider(window.ethereum);
+			const signer = await ethersProvider.getSigner();
+
 			const contract = new ethers.Contract(
 				NftGeneratortAddress.address,
 				NftGeneratorABI,
@@ -90,18 +84,10 @@ export function FoodShop({
 			return tokenContract;
 		}
 		try {
-			// const ethersProvider = new ethers.BrowserProvider(window.ethereum)
-			// const signer = await ethersProvider.getSigner()
-						const add2 = localStorage.getItem(address!);
-						const privateKey = localStorage.getItem(add2!);
-						// const infuraProjectId = process.env.INFURA_PROJECT_ID;
-						console.log(infura);
-						const provider = new ethers.JsonRpcProvider(infura);
-						const signer = new ethers.Wallet(privateKey!, provider);
-			// const add2 = localStorage.getItem(address);
-			// const privateKey = localStorage.getItem(add2);
-			// const provider = ethers.getDefaultProvider();
-			// const signer = new ethers.Wallet(privateKey, provider);
+
+			const ethersProvider = new ethers.BrowserProvider(window.ethereum);
+			const signer = await ethersProvider.getSigner();
+
 			const contract = new ethers.Contract(
 				TokenAddress.address,
 				TokenABI,

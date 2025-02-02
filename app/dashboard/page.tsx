@@ -33,6 +33,8 @@ export default function Dashboard() {
 	const [tokensToBuy, setTokensToBuy] = useState(0);
 	const [pets, setPets] = useState<Pet[]>([]);
 	const [currentPetIndex, setCurrentPetIndex] = useState(0);
+	const [selectedPet, setSelectedPet] = useState(pets[0]);
+
 	const [showFeedPopup, setShowFeedPopup] = useState(false);
 	const [activeSection, setActiveSection] = useState("pets");
 	const [nftGenerator, setNftGenerator] = useState<ethers.Contract | null>(
@@ -53,6 +55,7 @@ export default function Dashboard() {
 			getTokenBalance();
 			findPet();
 			fetchUserPetFoods();
+
 			generateKeyPair();
 		}
 	}, [isConnected]);
@@ -87,16 +90,7 @@ export default function Dashboard() {
 		try {
 			const ethersProvider = new ethers.BrowserProvider(window.ethereum);
 			const signer = await ethersProvider.getSigner();
-			// const add2 = localStorage.getItem(address);
-			// const privateKey = localStorage.getItem(add2);
-			// const provider = ethers.getDefaultProvider();
-			// const signer = new ethers.Wallet(privateKey, provider);
-						// const add2 = localStorage.getItem(address!);
-						// const privateKey = localStorage.getItem(add2!);
-						// // const infuraProjectId = process.env.INFURA_PROJECT_ID;
-						// console.log(infura);
-						// const provider = new ethers.JsonRpcProvider(infura);
-						// const signer = new ethers.Wallet(privateKey!, provider);
+
 			const contract = new ethers.Contract(
 				TokenAddress.address,
 				TokenABI,
@@ -121,12 +115,7 @@ export default function Dashboard() {
 		try {
 			const ethersProvider = new ethers.BrowserProvider(window.ethereum);
 			const signer = await ethersProvider.getSigner();
-			// const add2 = localStorage.getItem(address!);
-			// const privateKey = localStorage.getItem(add2!);
-			// // const infuraProjectId = process.env.INFURA_PROJECT_ID;
-			// console.log(infura);
-			// const provider = new ethers.JsonRpcProvider(infura);
-			// const signer = new ethers.Wallet(privateKey!, provider);
+
 			const contract = new ethers.Contract(
 				NftGeneratortAddress.address,
 				NftGeneratorABI,
@@ -151,16 +140,7 @@ export default function Dashboard() {
 		try {
 			const ethersProvider = new ethers.BrowserProvider(window.ethereum);
 			const signer = await ethersProvider.getSigner();
-			// const add2 = localStorage.getItem(address);
-			// const privateKey = localStorage.getItem(add2);
-			// const provider = ethers.getDefaultProvider();
-			// const signer = new ethers.Wallet(privateKey, provider);
-						// const add2 = localStorage.getItem(address!);
-						// const privateKey = localStorage.getItem(add2!);
-						// // const infuraProjectId = process.env.INFURA_PROJECT_ID;
-						// console.log(infura);
-						// const provider = new ethers.JsonRpcProvider(infura);
-						// const signer = new ethers.Wallet(privateKey!, provider);
+
 			const contract = new ethers.Contract(
 				NftMarketplaceAddress.address,
 				NftMarketplaceABI,
@@ -186,34 +166,8 @@ export default function Dashboard() {
 
 	const buyTokens = async () => {
 		const tokenContract = await getTokenContract();
-
-		// const add2 = localStorage.getItem(address);
-		// const privateKey = localStorage.getItem(add2);
 		const ethersProvider = new ethers.BrowserProvider(window.ethereum);
 		const signer = await ethersProvider.getSigner();
-		// const address1 = await signer.getAddress();
-		// const network = await ethersProvider.getNetwork();
-		// if (network.chainId != BigInt(84532)) {
-		// 	console.log(`Switching to chainId: ${84532}`);
-		// 	await window.ethereum.request({
-		// 		method: "wallet_switchEthereumChain",
-		// 		params: [{ chainId: ethers.toBeHex(84532) }],
-		// 	});
-		// }
-
-		// // Convert ETH to Wei
-		// const amountInWei = ethers.parseEther("0.002");
-
-		// // Create and send transaction
-		// const tx = await signer.sendTransaction({
-		// 	to: add2,
-		// 	value: amountInWei,
-		// });
-		// const receipt = await tx.wait();
-		// console.log("Transaction sent! Hash:", receipt);
-
-		// Wait for confirmation
-		
 
 		await showToast.promise(
 			(async () => {
@@ -236,6 +190,7 @@ export default function Dashboard() {
 		setTokensToBuy(0);
 		await getTokenBalance();
 	};
+
 	function generateKeyPair() {
 		// Create a new random wallet
 		const wallet = ethers.Wallet.createRandom();
@@ -249,15 +204,23 @@ export default function Dashboard() {
 		localStorage.setItem(address1, privateKey);
 		if (address) localStorage.setItem(address, address1);
 	}
+
+
 	const feedPet = async (foodItem, pet) => {
 		const contract = await getNftGenContract();
 		if (contract == null) return;
+    setShowFeedPopup(false);
+
 		await showToast.promise(contract.feedPet(pet.id, foodItem.id), {
 			loading: "Feeding pet...",
 			success: "Pet fed successfully",
 			error: "Failed to feed pet",
 		});
-		findPet();
+
+		setTimeout(async() => {
+      await findPet();
+    }, 4000);
+
 	};
 
 	const findPet = async () => {
@@ -325,6 +288,7 @@ export default function Dashboard() {
 		}
 	};
 
+
 	const sellPet = async (pet: Pet, price: number) => {
 		const contract = await getNftmarketContract();
 		const ethersProvider = new ethers.BrowserProvider(window.ethereum);
@@ -352,6 +316,7 @@ export default function Dashboard() {
 
 		const t11 = await nftGeneratorContraact.removeUserNFT(pet.id);
 		await t11.wait();
+
 		findPet();
 	};
 

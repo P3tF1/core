@@ -4,10 +4,7 @@
 import { wagmiAdapter, projectId } from "@/config";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createAppKit } from "@reown/appkit/react";
-import {
-  arbitrum,
-  baseSepolia,
-} from "@reown/appkit/networks";
+import { arbitrum, baseSepolia } from "@reown/appkit/networks";
 import React, { type ReactNode } from "react";
 import { cookieToInitialState, WagmiProvider, type Config } from "wagmi";
 
@@ -15,53 +12,50 @@ import { cookieToInitialState, WagmiProvider, type Config } from "wagmi";
 const queryClient = new QueryClient();
 
 if (!projectId) {
-  throw new Error("Project ID is not defined");
+	throw new Error("Project ID is not defined");
 }
 
 // Set up metadata
 const metadata = {
-  name: "PetFi",
-  description: "AppKit Example",
-  url: "http://localhost:3000", // origin must match your domain & subdomain
-  icons: ["https://assets.reown.com/reown-profile-pic.png"],
+	name: "PetFi",
+	description: "AppKit Example",
+	url: "http://localhost:3000", // origin must match your domain & subdomain
+	icons: ["https://assets.reown.com/reown-profile-pic.png"],
 };
 
 // Create the modal
 const modal = createAppKit({
-  adapters: [wagmiAdapter],
-  projectId,
-  networks: [
-    arbitrum,
-    baseSepolia,
-  ],
-  defaultNetwork: baseSepolia,
-  metadata: metadata,
-  features: {
-    analytics: true,
-  },
-  themeMode: "dark",
+	adapters: [wagmiAdapter],
+	projectId,
+	networks: [arbitrum, baseSepolia],
+	defaultNetwork: baseSepolia,
+	metadata: metadata,
+	features: {
+		analytics: true,
+	},
+	themeMode: "dark",
 });
 
 function ContextProvider({
-  children,
-  cookies,
+	children,
+	cookies,
 }: {
-  children: ReactNode;
-  cookies: string | null;
+	children: ReactNode;
+	cookies: string | null;
 }) {
-  const initialState = cookieToInitialState(
-    wagmiAdapter.wagmiConfig as Config,
-    cookies
-  );
+	const initialState = cookieToInitialState(
+		wagmiAdapter.wagmiConfig as Config,
+		cookies
+	);
 
-  return (
-    <WagmiProvider
-      config={wagmiAdapter.wagmiConfig as Config}
-      initialState={initialState}
-    >
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-    </WagmiProvider>
-  );
+	return (
+		<WagmiProvider
+			config={wagmiAdapter.wagmiConfig as Config}
+			initialState={initialState}
+		>
+			<QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+		</WagmiProvider>
+	);
 }
 
 export default ContextProvider;

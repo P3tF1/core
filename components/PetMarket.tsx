@@ -20,6 +20,7 @@ export function PetMarket({
 	onBuyDefaultPet,
 }) {
 	const [showBuyPetPopup, setShowBuyPetPopup] = useState(false);
+
 	const [petsForSale, setPetsForSale] = useState<Pet[]>([]); // Initialize as empty array
 	const { address } = useAppKitAccount();
 	useEffect(() => {
@@ -106,6 +107,7 @@ export function PetMarket({
 	const buyNewPet = async () => {
 		if (balance >= 100) {
 			setShowBuyPetPopup(false);
+
 			try {
 				await onBuyDefaultPet();
 			} catch (error) {
@@ -170,6 +172,7 @@ export function PetMarket({
 		//     console.error("Error buying pet:", error);
 		//   }
 		// }
+
 	};
 
 	return (
@@ -191,7 +194,9 @@ export function PetMarket({
 							<PetForSaleCard
 								key={pet.id}
 								pet={pet}
+
 								onBuy={() => handleBuyPet(pet)}
+
 								balance={balance}
 							/>
 						))}
