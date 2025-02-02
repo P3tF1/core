@@ -7,7 +7,6 @@ import { generateRocks, type RockType } from "./utils/rockUtils";
 import BackgroundScene from "./components/BackgroundScene";
 import StartTimer from "./components/StartTimer";
 import GameEndScene from "./components/GameEndScene";
-import Navbar from "@/components/navbar";
 import {Howler, Howl} from "howler"
 import { Navbar } from "@/components/Navbar";
 const GAME_DURATION = 10;
