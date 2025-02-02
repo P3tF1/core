@@ -15,7 +15,7 @@ export function PetForSaleCard({ pet, onBuy, balance }: PetForSaleCardProps) {
 
 	const getImageUrl = (pet: Pet) => {
 		if (!IMAGE_URL) return testImageLink;
-		return IMAGE_URL.replace("[Type]", encodeURIComponent(pet.type))
+		return IMAGE_URL.replace("[Type]", encodeURIComponent("Dragon"))
 			.replace("[Level]", encodeURIComponent(pet.level.toString()))
 			.replace("[Strength]", encodeURIComponent(pet.strength.toString()))
 			.replace(
@@ -24,6 +24,8 @@ export function PetForSaleCard({ pet, onBuy, balance }: PetForSaleCardProps) {
 			);
 	};
 	const imageUrl = getImageUrl(pet);
+	console.log(imageUrl);
+	console.log(pet)
 
 
 	return (

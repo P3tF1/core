@@ -52,7 +52,7 @@ export default function LandingPage() {
 				<Hero scrollYProgress={scrollYProgress} />
 				<Features scrollYProgress={scrollYProgress} />
 				<HowItWorks scrollYProgress={scrollYProgress} />
-				<PetShowcase scrollYProgress={scrollYProgress} />
+				{/* <PetShowcase scrollYProgress={scrollYProgress} /> */}
 				<CallToAction scrollYProgress={scrollYProgress} />
 			</main>
 			<Footer />

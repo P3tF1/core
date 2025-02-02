@@ -75,7 +75,7 @@ export function PetSelector({ pets, onSelectPet }: PetSelectorProps) {
 					/>
 					<h4 className="font-semibold">{currentPet.name}</h4>
 					<p className="text-sm text-gray-600">
-						Level {currentPet.level} {currentPet.type}
+						Level {currentPet.level} Dragon
 					</p>
 				</motion.div>
 				<Button variant="outline" size="icon" onClick={handleNext}>

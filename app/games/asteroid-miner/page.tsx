@@ -641,7 +641,7 @@ export default function Home() {
 					<div className="w-24 h-24 flex items-center justify-center bg-purple-100 dark:bg-purple-900/30 rounded-full mb-4">
 						<Image
 							src={getImageUrl(pet)|| testImageLink}
-							alt={`${pet.name} - Level ${pet.level} ${pet.type}`}
+							alt={`${pet.name} - Level ${pet.level} Dragon`}
 							className="object-cover rounded-full"
 							width={96}
 							height={48}
@@ -651,7 +651,7 @@ export default function Home() {
 						/>
 					</div>
 					<h4 className="text-xl font-bold mb-1">{petName}</h4>
-					<p className="text-gray-600 dark:text-gray-400">{pet.type}</p>
+					<p className="text-gray-600 dark:text-gray-400">Dragon</p>
 				</div>
 
 				<div className="space-y-4">
