@@ -1,10 +1,22 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Trophy, Brain, Coins } from "lucide-react";
 import PathfinderGame from "./components/PathfinderGame";
 import { useSearchParams } from "next/navigation";
 import { Navbar } from "@/components/Navbar";
+// import { useSearchParams } from "next/navigation";
+import {testImageLink} from "@/constants/gameData";
+import {showToast} from "@/utils/toast";
+import {ethers} from "ethers";
+import NftGeneratortAddress from "@/contract_address/nft_generator_address.json";
+import NftGeneratorABI from "@/contract_abis/nft_generator_abi.json";
+import {useAppKitAccount} from "@reown/appkit/react";
+import TokenAddress from "@/contract_address/p3tf1_coin_address.json";
+import TokenABI from "@/contract_abis/p3tf1_coin_abi.json";
+import type {Pet} from "@/types";
+import {number} from "zod";
+import Image from "next/image";
 
 const samplePetsForTrade = [
 	{
@@ -44,47 +56,180 @@ export default function Home() {
 	const [coinsWon, setCoins] = useState(0);
 	const [showReward, setShowReward] = useState(false);
 	const [earnedCoins, setEarnedCoins] = useState(0);
-	const searchParams = useSearchParams();
+	// const searchParams = useSearchParams();
 	const [balance, setBalance] = useState(0);
 
-	const rockBreak = new Howl({
-		src: ["/rock-break.mp3"],
-		volume: 0.8,
-	});
+	const searchParams = useSearchParams();
+	const variable = searchParams.get("pet"); // Extracts "variable"
+	console.log(variable)
+	const [petName, setPetName] = useState("");
+	const [petLevel, setPetLevel] = useState(0);
+	const [petStrength, setPetStrength] = useState(0);
+
+	const [pets, setPets] = useState<Pet[]>([]);
+	const { address, isConnected } = useAppKitAccount();
+	const [tokenContract, setTokenContract] = useState<ethers.Contract | null>(
+		null
+	);
+	const [nftGenerator, setNftGenerator] = useState<ethers.Contract | null>(
+		null
+	);
+	const IMAGE_URL = process.env.NEXT_PUBLIC_IMAGE_URL;
+
+	const getImageUrl = (pet: Pet) => {
+		if (!IMAGE_URL) return testImageLink;
+		return IMAGE_URL.replace("[Type]", encodeURIComponent("Dragon"))
+			.replace("[Level]", encodeURIComponent(pet.level.toString()))
+			.replace("[Strength]", encodeURIComponent(pet.strength.toString()))
+			.replace(
+				"[Intelligence]",
+				encodeURIComponent(pet.intelligence.toString())
+			);
+	};
+
 
 	useEffect(() => {
-		const fetchPetDetails = async () => {
-			try {
-				// Get the pet ID from URL
-				const petParam = searchParams.get("pet");
-				if (!petParam) {
-					throw new Error("No pet ID provided");
-				}
+		if (isConnected) {
+			getTokenBalance();
+			findPet();
+			console.log("I am on");
+		}
+	}, [isConnected]);
 
-				const petId = JSON.parse(petParam);
+	const getTokenBalance = async () => {
+		const tokenContract = await getTokenContract();
+		if (!tokenContract) {
+			return;
+		}
+		const balance = await tokenContract.balanceOf(address);
+		const formattedBalance = ethers.formatEther(balance);
+		setBalance(Number(formattedBalance));
+	};
 
-				// Find the pet in our sample data
-				const foundPet = samplePetsForTrade.find((p) => p.id === petId);
-				if (!foundPet) {
-					throw new Error("Pet not found");
-				}
+	const getTokenContract = async () => {
+		if (!isConnected) {
+			showToast.error("Wallet not connected");
+			return null;
+		}
+		if (tokenContract) {
+			return tokenContract;
+		}
+		try {
+			const ethersProvider = new ethers.BrowserProvider(window.ethereum);
+			const signer = await ethersProvider.getSigner();
 
-				setPet(foundPet);
-			} catch (error) {
-				console.error("Error fetching pet details:", error);
+			const contract = new ethers.Contract(
+				TokenAddress.address,
+				TokenABI,
+				signer
+			);
+			setTokenContract(contract);
+			return contract;
+		} catch (error) {
+			showToast.error("Failed to fetch contract: " + error.message);
+			return null;
+		}
+	};
+
+	const getNftGenContract = async () => {
+		if (!isConnected) {
+			showToast.error("Wallet not connected");
+			return null;
+		}
+		if (nftGenerator) {
+			return nftGenerator;
+		}
+		try {
+			const ethersProvider = new ethers.BrowserProvider(window.ethereum);
+			const signer = await ethersProvider.getSigner();
+
+			const contract = new ethers.Contract(
+				NftGeneratortAddress.address,
+				NftGeneratorABI,
+				signer
+			);
+			setNftGenerator(contract);
+			return contract;
+		} catch (error) {
+			showToast.error("Failed to fetch contract: " + error.message);
+			return null;
+		}
+	};
+
+	const findPet = async () => {
+		const contract = await getNftGenContract();
+		if (contract == null) return;
+		const nftIds = await contract.getUserNFTs(address);
+		console.log("User's NFT IDs:", nftIds);
+
+		const finalPetsArray = [];
+		for (const tokenId of nftIds) {
+			const nftDetails = await contract.getNFTDetails(tokenId);
+			finalPetsArray.push({
+				id: tokenId.toString(),
+				name: nftDetails.name,
+				level: nftDetails.level.toString(),
+				strength: nftDetails.strength.toString(),
+				intelligence: nftDetails.intelligence.toString(),
+				image: nftDetails.imageLink || testImageLink,
+				type: nftDetails.xP.toString(),
+			})
+			console.log(tokenId)
+			if (tokenId.toString() == variable) {
+				setPetName(nftDetails.name);
+				setPetLevel(nftDetails.level);
+				setPetStrength(nftDetails.strength);
+				console.log(petName, petLevel, petStrength);
 				setPet({
-					name: "Fluffy",
-					type: "Dragon",
-					level: 5,
-					strength: 10,
-					intelligence: 8,
-					icon: "🐉",
+					id: tokenId.toString(),
+					name: nftDetails.name,
+					level: nftDetails.level.toString(),
+					strength: nftDetails.strength.toString(),
+					intelligence: nftDetails.intelligence.toString(),
+					image: nftDetails.imageLink || testImageLink,
+					type: nftDetails.xP.toString(),
 				});
 			}
-		};
+		}
+		console.log("Here");
+		console.log(finalPetsArray);
+		setPets(finalPetsArray);
+		return finalPetsArray;
+	};
 
-		fetchPetDetails();
-	}, [searchParams]);
+	// useEffect(() => {
+	// 	const fetchPetDetails = async () => {
+	// 		try {
+	// 			// Get the pet ID from URL
+	// 			const petParam = searchParams.get("pet");
+	// 			if (!petParam) {
+	// 				throw new Error("No pet ID provided");
+	// 			}
+	//
+	// 			const petId = JSON.parse(petParam);
+	//
+	// 			// Find the pet in our sample data
+	// 			const foundPet = samplePetsForTrade.find((p) => p.id === petId);
+	// 			if (!foundPet) {
+	// 				throw new Error("Pet not found");
+	// 			}
+	//
+	// 			setPet(foundPet);
+	// 		} catch (error) {
+	// 			console.error("Error fetching pet details:", error);
+	// 			setPet({
+	// 				name: "Fluffy",
+	// 				type: "Dragon",
+	// 				level: 5,
+	// 				strength: 10,
+	// 				intelligence: 8,
+	// 				icon: "🐉",
+	// 			});
+	// 		}
+	// 	};
+	//
+	// 	fetchPetDetails();
+	// }, [searchParams]);
 
 	const handleGameComplete = (score: number) => {
 		const newCoins = Math.floor(score / 10);
@@ -164,6 +309,19 @@ export default function Home() {
 }
 
 function PetPanel({ pet }) {
+	const [isImageLoading, setIsImageLoading] = useState(true);
+	const IMAGE_URL = process.env.NEXT_PUBLIC_IMAGE_URL;
+
+	const getImageUrl = (pet: Pet) => {
+		if (!IMAGE_URL) return testImageLink;
+		return IMAGE_URL.replace("[Type]", encodeURIComponent("Dragon"))
+			.replace("[Level]", encodeURIComponent(pet.level.toString()))
+			.replace("[Strength]", encodeURIComponent(pet.strength.toString()))
+			.replace(
+				"[Intelligence]",
+				encodeURIComponent(pet.intelligence.toString())
+			);
+	};
 	return (
 		<aside className="lg:w-80 bg-white dark:bg-zinc-900 p-6 rounded-xl shadow-lg border border-purple-100 dark:border-purple-900 sticky top-6 self-start">
 			<h3 className="text-xl font-bold text-purple-600 dark:text-purple-400 mb-6">
@@ -171,7 +329,16 @@ function PetPanel({ pet }) {
 			</h3>
 			<div className="flex flex-col items-center mb-6">
 				<div className="w-24 h-24 flex items-center justify-center bg-purple-100 dark:bg-purple-900/30 rounded-full mb-4">
-					<span className="text-5xl">{pet.icon}</span>
+					<Image
+						src={getImageUrl(pet)|| testImageLink}
+						alt={`${pet.name} - Level ${pet.level} ${pet.type}`}
+						className="object-cover rounded-full"
+						width={96}
+						height={48}
+						onLoadingComplete={() => setIsImageLoading(false)}
+						onError={() => setIsImageLoading(false)}
+						priority
+					/>
 				</div>
 				<h4 className="text-xl font-bold mb-1">{pet.name}</h4>
 				<p className="text-gray-600 dark:text-gray-400">Dragon</p>
