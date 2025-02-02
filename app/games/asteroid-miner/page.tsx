@@ -12,6 +12,7 @@ import type {
 	GameConfig,
 } from "./types";
 import { Navbar } from "@/components/Navbar";
+import {Howler, Howl} from "howler"
 
 const CANVAS_WIDTH = 800;
 const CANVAS_HEIGHT = 600;
@@ -21,7 +22,7 @@ const METEORITE_SIZE = 40;
 const LASER_WIDTH = 3;
 const LASER_HEIGHT = 15;
 const INITIAL_COUNTDOWN = 3;
-const SPACESHIP_SPEED = 5;
+const SPACESHIP_SPEED = 6
 
 const ASTEROID_COLORS = ["#8B4513", "#A0522D", "#D2691E", "#CD853F", "#DEB887"];
 
@@ -62,11 +63,11 @@ const samplePetsForTrade = [
 const gameConfig: GameConfig = {
 	meteoriteSpawnRate: 0.02,
 	meteoriteSpeedBase: 1,
-	meteoriteSpeedVariance: 0.5,
+	meteoriteSpeedVariance: 0.35,
 	meteoriteHitsMean: 3,
 	meteoriteHitsStdDev: 1,
 	laserSpeed: 5,
-	laserFireRate: 0.1,
+	laserFireRate: 0.06,
 };
 
 // Helper function for normal distribution
@@ -80,6 +81,15 @@ function normalDistribution(mean: number, stdDev: number): number {
 export default function Home() {
 	const [pet, setPet] = useState<any>(null);
 	const [balance, setBalance] = useState(0);
+	const laserSound = new Howl({
+		src: ["/laser.mp3"],
+		volume: 0.8,
+	});
+
+	const rockBreak = new Howl({
+		src: ["/rock-break.mp3"],
+		volume: 0.8,
+	});
 	useEffect(() => {
 		setPet(samplePetsForTrade[0]);
 	}, []);
@@ -266,6 +276,7 @@ export default function Home() {
 					);
 
 					if (hitLasers.length > 0) {
+						rockBreak.play();
 						setLasers((prev) =>
 							prev.filter((laser) => !hitLasers.includes(laser))
 						);
@@ -316,6 +327,8 @@ export default function Home() {
 			y: spaceship.y,
 			speed: gameConfig.laserSpeed,
 		};
+		console.log("Laser fired! 🚀");
+		laserSound.play();
 		setLasers((prev) => [...prev, newLaser]);
 	};
 
