@@ -28,22 +28,12 @@ export function PetMarket({
 			if (window.ethereum) {
 				const ethersProvider = new ethers.BrowserProvider(window.ethereum);
 				const signer = await ethersProvider.getSigner();
-				// const add2 = localStorage.getItem(address!);
-				// const privateKey = localStorage.getItem(add2!);
-				// // const infuraProjectId = process.env.INFURA_PROJECT_ID;
-				// console.log(infura);
-				// const provider = new ethers.JsonRpcProvider(infura);
-				// const signer = new ethers.Wallet(privateKey!, provider);
-				// const add2 = localStorage.getItem(address);
-				// const privateKey = localStorage.getItem(add2);
-				// const provider = ethers.getDefaultProvider();
-				// const signer = new ethers.Wallet(privateKey, provider);
 				const contract = new ethers.Contract(
 					NftMarketplaceAddress.address,
 					NftMarketplaceABI,
 					signer
 				);
-				const chainId = await provider
+				const chainId = await ethersProvider
 					.getNetwork()
 					.then((network) => network.chainId);
 
@@ -104,12 +94,12 @@ export function PetMarket({
 		[]
 	);
 
-	const buyNewPet = async () => {
+	const buyNewPet = async (name) => {
 		if (balance >= 100) {
 			setShowBuyPetPopup(false);
-
+			console.log(name)
 			try {
-				await onBuyDefaultPet();
+				await onBuyDefaultPet(name);
 			} catch (error) {
 				console.error("Error buying default pet:", error);
 			}
@@ -119,16 +109,6 @@ export function PetMarket({
 	const handleBuyPet = async (pet: Pet) => {
 		const ethersProvider = new ethers.BrowserProvider(window.ethereum);
 		const signer = await ethersProvider.getSigner();
-		// const add2 = localStorage.getItem(address!);
-		// const privateKey = localStorage.getItem(add2!);
-		// // const infuraProjectId = process.env.INFURA_PROJECT_ID;
-		// console.log(infura);
-		// const provider = new ethers.JsonRpcProvider(infura);
-		// const signer = new ethers.Wallet(privateKey!, provider);
-		// const add2 = localStorage.getItem(address);
-		// const privateKey = localStorage.getItem(add2);
-		// const provider = ethers.getDefaultProvider();
-		// const signer = new ethers.Wallet(privateKey, provider);
 		const nftGeneratorContraact = new ethers.Contract(
 			NftGeneratortAddress.address,
 			NftGeneratorABI,
